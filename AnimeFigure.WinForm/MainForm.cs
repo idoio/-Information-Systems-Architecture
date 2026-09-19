@@ -19,6 +19,7 @@ namespace AnimeFigures.WinForms
         {
             InitializeCustomComponents();
             _logic = new FigureLogic();
+            _logic.AddDefaultFigures();
             InitializeDataGridView();
             LoadFigures();
         }

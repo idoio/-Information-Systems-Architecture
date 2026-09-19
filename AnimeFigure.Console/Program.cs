@@ -10,6 +10,7 @@ namespace AnimeFigures.Console
         static void Main(string[] args)
         {
             System.Console.WriteLine("=== МАГАЗИН АНИМЕ-ФИГУРОК ===\n");
+            _logic.AddDefaultFigures();
 
             bool exit = false;
             while (!exit)

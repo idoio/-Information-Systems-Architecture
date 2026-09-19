@@ -147,6 +147,23 @@ namespace AnimeFigures.Logic
                 .GroupBy(f => f.Manufacturer)
                 .ToDictionary(g => g.Key, g => g.Count());
         }
+        /// <summary>
+        /// Добавляет тестовые данные для демонстрации работы приложения
+        /// </summary>
+        public void AddDefaultFigures()
+        {
+            // Защита от дублирования, если метод вызовут дважды
+            if (_figures.Count > 0) return;
+
+            CreateFigure("Наруто Узумаки", "Наруто", "Наруто", "Good Smile Company", 15000m, "1:7", 25.0, new DateTime(2023, 5, 15), 5);
+            CreateFigure("Сон Гоку", "Гоку", "Жемчуг дракона", "Bandai", 8500m, "Нендроид", 10.0, new DateTime(2022, 11, 20), 12);
+            CreateFigure("Луффи", "Луффи", "Ван Пис", "MegaHouse", 22000m, "1:8", 22.0, new DateTime(2023, 8, 10), 3);
+            CreateFigure("Саске Учиха", "Саске", "Наруто", "Good Smile Company", 14500m, "1:7", 24.0, new DateTime(2023, 6, 1), 7);
+            CreateFigure("Танджиро Камадо", "Танджиро", "Истребитель демонов", "Aniplex", 35000m, "1:4", 45.0, new DateTime(2024, 1, 15), 2);
+            CreateFigure("Гоку Супер Сайян", "Гоку", "Жемчуг дракона", "Bandai", 12000m, "1:7", 20.0, new DateTime(2023, 3, 10), 8);
+            CreateFigure("Незуко Камадо", "Незуко", "Истребитель демонов", "Good Smile Company", 9000m, "Нендроид", 11.0, new DateTime(2023, 9, 5), 15);
+            CreateFigure("Роронао Зоро", "Зоро", "Ван Пис", "MegaHouse", 18000m, "1:7", 23.0, new DateTime(2023, 7, 20), 4);
+        }
 
         /// <summary>
         /// Фильтрует фигурки по заданному масштабу
