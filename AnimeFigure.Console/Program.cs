@@ -126,43 +126,25 @@ namespace AnimeFigures.ConsoleApp
         }
 
         /// <summary>
-        /// Запрашивает масштаб с проверкой на допустимые значения.
-        /// Допустимо: "1/4", "1/6", "1/7", "1/8", "1/10", "Nendoroid", "Figuarts", "Figma", "Scale".
-        /// Разделитель ':' нормализуется в '/'.
+        /// Запрашивает масштаб у пользователя с проверкой через общую логику валидации
         /// </summary>
-        /// <param name="prompt">Текст приглашения</param>
+        /// <param name="prompt">Текст приглашения для ввода</param>
         /// <returns>Введённый масштаб в нормализованном виде</returns>
         static string ReadScale(string prompt)
         {
-            string[] allowedFraction = { "1/4", "1/6", "1/7", "1/8", "1/10" };
-            string[] allowedNamed = { "nendoroid", "figuarts", "figma", "scale" };
-
             while (true)
             {
                 Console.Write(prompt);
-                string input = Console.ReadLine()?.Trim();
-                if (string.IsNullOrWhiteSpace(input))
+                string input = Console.ReadLine();
+
+                if (FigureLogic.TryValidateScale(input, out string errorMessage))
                 {
-                    Console.WriteLine("Ошибка: масштаб не может быть пустым.");
-                    continue;
+                    // Возвращаем нормализованное значение (с '/' вместо ':')
+                    return input.Trim().Replace(':', '/');
                 }
 
-                string normalized = input.Replace(':', '/');
-
-                if (normalized.Contains('/'))
-                {
-                    if (allowedFraction.Contains(normalized))
-                        return normalized;
-
-                    Console.WriteLine($"Ошибка: недопустимый масштаб. Допустимые дробные: {string.Join(", ", allowedFraction)}.");
-                    continue;
-                }
-
-                if (allowedNamed.Contains(normalized.ToLower()))
-                    return normalized;
-
-                Console.WriteLine($"Ошибка: недопустимый масштаб. Допустимые: {string.Join(", ", allowedFraction)}, " +
-                                  $"{string.Join(", ", allowedNamed)}.");
+                Console.WriteLine($"Ошибка: {errorMessage}");
+                Console.WriteLine("Попробуйте ввести снова.\n");
             }
         }
 

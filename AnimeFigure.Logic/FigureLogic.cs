@@ -252,34 +252,50 @@ namespace AnimeFigures.Logic
         }
 
         /// <summary>
-        /// Проверяет, что масштаб задан в допустимом формате и входит в список разрешённых.
-        /// Допустимо: "1/4", "1/6", "1/7", "1/8", "1/10", "Nendoroid", "Figuarts", "Figma", "Scale".
-        /// Разделитель ':' нормализуется в '/'.
+        /// Проверяет корректность масштаба без выброса исключения (паттерн TryParse).
+        /// Используется в UI для удобного вывода ошибки пользователю.
         /// </summary>
         /// <param name="scale">Проверяемый масштаб</param>
-        /// <exception cref="ArgumentException">Бросается, если масштаб пустой или недопустимый</exception>
-        private static void ValidateScale(string scale)
+        /// <param name="errorMessage">Текст ошибки, если масштаб недопустим</param>
+        /// <returns>True, если масштаб допустим; иначе False</returns>
+        public static bool TryValidateScale(string scale, out string errorMessage)
         {
+            errorMessage = "";
+
             if (string.IsNullOrWhiteSpace(scale))
-                throw new ArgumentException("Масштаб не может быть пустым");
+            {
+                errorMessage = "Масштаб не может быть пустым";
+                return false;
+            }
 
             string normalized = scale.Trim().Replace(':', '/');
 
             if (normalized.Contains('/'))
             {
                 if (AllowedFractionScales.Contains(normalized))
-                    return;
+                    return true;
 
-                throw new ArgumentException(
-                    $"Недопустимый масштаб '{scale}'. Допустимые дробные: {string.Join(", ", AllowedFractionScales)}");
+                errorMessage = $"Недопустимый масштаб '{scale}'. Допустимые дробные: {string.Join(", ", AllowedFractionScales)}";
+                return false;
             }
 
             if (AllowedNamedScales.Contains(normalized.ToLower()))
-                return;
+                return true;
 
-            throw new ArgumentException(
-                $"Недопустимый масштаб '{scale}'. Допустимые: {string.Join(", ", AllowedFractionScales)}, " +
-                $"{string.Join(", ", AllowedNamedScales)}");
+            errorMessage = $"Недопустимый масштаб '{scale}'. Допустимые: {string.Join(", ", AllowedFractionScales)}, {string.Join(", ", AllowedNamedScales)}";
+            return false;
+        }
+
+        /// <summary>
+        /// Проверяет, что масштаб задан в допустимом формате.
+        /// Бросает исключение, если масштаб недопустим.
+        /// </summary>
+        private static void ValidateScale(string scale)
+        {
+            if (!TryValidateScale(scale, out string errorMessage))
+            {
+                throw new ArgumentException(errorMessage);
+            }
         }
 
         #endregion
