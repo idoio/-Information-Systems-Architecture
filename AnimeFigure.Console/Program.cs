@@ -1,7 +1,7 @@
 ﻿using AnimeFigures.Logic;
 using AnimeFigures.Model;
 
-namespace AnimeFigures.Console
+namespace AnimeFigures.ConsoleApp
 {
     class Program
     {
@@ -9,14 +9,14 @@ namespace AnimeFigures.Console
 
         static void Main(string[] args)
         {
-            System.Console.WriteLine("=== МАГАЗИН АНИМЕ-ФИГУРОК ===\n");
+            Console.WriteLine("=== МАГАЗИН АНИМЕ-ФИГУРОК ===\n");
             _logic.AddDefaultFigures();
 
             bool exit = false;
             while (!exit)
             {
                 ShowMenu();
-                string choice = System.Console.ReadLine();
+                string choice = Console.ReadLine();
 
                 switch (choice)
                 {
@@ -29,7 +29,7 @@ namespace AnimeFigures.Console
                     case "7": FilterByScale(); break;
                     case "8": exit = true; break;
                     default:
-                        System.Console.WriteLine("Неверный выбор!");
+                        Console.WriteLine("Неверный выбор!");
                         break;
                 }
             }
@@ -37,111 +37,211 @@ namespace AnimeFigures.Console
 
         static void ShowMenu()
         {
-            System.Console.WriteLine("\n=== МЕНЮ ===");
-            System.Console.WriteLine("1. Добавить фигурку");
-            System.Console.WriteLine("2. Показать фигурку по ID");
-            System.Console.WriteLine("3. Обновить фигурку");
-            System.Console.WriteLine("4. Удалить фигурку");
-            System.Console.WriteLine("5. Показать все фигурки");
-            System.Console.WriteLine("6. Группировка по производителю");
-            System.Console.WriteLine("7. Фильтрация по масштабу");
-            System.Console.WriteLine("8. Выход");
-            System.Console.Write("Выбор: ");
+            Console.WriteLine("\n=== МЕНЮ ===");
+            Console.WriteLine("1. Добавить фигурку");
+            Console.WriteLine("2. Показать фигурку по ID");
+            Console.WriteLine("3. Обновить фигурку");
+            Console.WriteLine("4. Удалить фигурку");
+            Console.WriteLine("5. Показать все фигурки");
+            Console.WriteLine("6. Группировка по производителю");
+            Console.WriteLine("7. Фильтрация по масштабу");
+            Console.WriteLine("8. Выход");
+            Console.Write("Выбор: ");
         }
+
+        // ---------- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ВВОДА ----------
+
+        static int ReadInt(string prompt, int minValue = int.MinValue)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                if (int.TryParse(Console.ReadLine(), out int value) && value >= minValue)
+                    return value;
+                Console.WriteLine($"Ошибка: введите целое число >= {minValue}.");
+            }
+        }
+
+        static decimal ReadDecimal(string prompt, decimal minValue = 0)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                if (decimal.TryParse(Console.ReadLine(), out decimal value) && value >= minValue)
+                    return value;
+                Console.WriteLine($"Ошибка: введите число >= {minValue}.");
+            }
+        }
+
+        static double ReadDouble(string prompt, double minValue = 0)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                if (double.TryParse(Console.ReadLine(), out double value) && value >= minValue)
+                    return value;
+                Console.WriteLine($"Ошибка: введите число >= {minValue}.");
+            }
+        }
+
+        static string ReadNonEmptyString(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string value = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value.Trim();
+                Console.WriteLine("Ошибка: строка не может быть пустой.");
+            }
+        }
+
+        /// <summary>
+        /// Запрашивает масштаб с проверкой на допустимые значения.
+        /// Допустимо: "1/4", "1/6", "1/7", "1/8", "1/10", "Nendoroid", "Figuarts", "Figma", "Scale".
+        /// Разделитель ':' нормализуется в '/'.
+        /// </summary>
+        static string ReadScale(string prompt)
+        {
+            string[] allowedFraction = { "1/4", "1/6", "1/7", "1/8", "1/10" };
+            string[] allowedNamed = { "nendoroid", "figuarts", "figma", "scale" };
+
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine()?.Trim();
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.WriteLine("Ошибка: масштаб не может быть пустым.");
+                    continue;
+                }
+
+                string normalized = input.Replace(':', '/');
+
+                if (normalized.Contains('/'))
+                {
+                    if (allowedFraction.Contains(normalized))
+                        return normalized;
+
+                    Console.WriteLine($"Ошибка: недопустимый масштаб. Допустимые дробные: {string.Join(", ", allowedFraction)}.");
+                    continue;
+                }
+
+                if (allowedNamed.Contains(normalized.ToLower()))
+                    return normalized;
+
+                Console.WriteLine($"Ошибка: недопустимый масштаб. Допустимые: {string.Join(", ", allowedFraction)}, " +
+                                  $"{string.Join(", ", allowedNamed)}.");
+            }
+        }
+
+        static DateTime ReadDate(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt + " (ДД.ММ.ГГГГ): ");
+                if (DateTime.TryParse(Console.ReadLine(), out DateTime value))
+                    return value;
+                Console.WriteLine("Ошибка: неверный формат даты. Пример: 15.05.2023.");
+            }
+        }
+
+        // ---------- CRUD ----------
 
         static void CreateFigure()
         {
-            System.Console.Write("Название: ");
-            string name = System.Console.ReadLine();
-            System.Console.Write("Персонаж: ");
-            string character = System.Console.ReadLine();
-            System.Console.Write("Аниме: ");
-            string anime = System.Console.ReadLine();
-            System.Console.Write("Производитель: ");
-            string manufacturer = System.Console.ReadLine();
-            System.Console.Write("Цена: ");
-            decimal price = decimal.Parse(System.Console.ReadLine());
-            System.Console.Write("Масштаб: ");
-            string scale = System.Console.ReadLine();
-            System.Console.Write("Высота (см): ");
-            double height = double.Parse(System.Console.ReadLine());
-            System.Console.Write("Количество на складе: ");
-            int inStock = int.Parse(System.Console.ReadLine());
+            string name = ReadNonEmptyString("Название: ");
+            string character = ReadNonEmptyString("Персонаж: ");
+            string anime = ReadNonEmptyString("Аниме: ");
+            string manufacturer = ReadNonEmptyString("Производитель: ");
+            decimal price = ReadDecimal("Цена: ", 0);
+            string scale = ReadScale("Масштаб: ");
+            double height = ReadDouble("Высота (см): ", 0);
+            DateTime releaseDate = ReadDate("Дата выхода");
+            int inStock = ReadInt("Количество на складе: ", 0);
 
             var figure = _logic.CreateFigure(name, character, anime, manufacturer,
-                                             price, scale, height, DateTime.Now, inStock);
-            System.Console.WriteLine($"Фигурка добавлена с ID: {figure.Id}");
+                                             price, scale, height, releaseDate, inStock);
+            Console.WriteLine($"Фигурка добавлена с ID: {figure.Id}");
         }
 
         static void ReadFigure()
         {
-            System.Console.Write("Введите ID: ");
-            int id = int.Parse(System.Console.ReadLine());
+            int id = ReadInt("Введите ID: ", 1);
             var figure = _logic.ReadFigure(id);
-            System.Console.WriteLine(figure != null ? figure.ToString() : "Не найдена");
+            Console.WriteLine(figure != null ? figure.ToString() : "Не найдена");
         }
 
         static void UpdateFigure()
         {
-            System.Console.Write("ID для обновления: ");
-            int id = int.Parse(System.Console.ReadLine());
-            System.Console.Write("Новое название: ");
-            string name = System.Console.ReadLine();
-            System.Console.Write("Новый персонаж: ");
-            string character = System.Console.ReadLine();
-            System.Console.Write("Новое аниме: ");
-            string anime = System.Console.ReadLine();
-            System.Console.Write("Новый производитель: ");
-            string manufacturer = System.Console.ReadLine();
-            System.Console.Write("Новая цена: ");
-            decimal price = decimal.Parse(System.Console.ReadLine());
-            System.Console.Write("Новый масштаб: ");
-            string scale = System.Console.ReadLine();
-            System.Console.Write("Новая высота: ");
-            double height = double.Parse(System.Console.ReadLine());
-            System.Console.Write("Новое количество: ");
-            int inStock = int.Parse(System.Console.ReadLine());
+            int id = ReadInt("ID для обновления: ", 1);
+            var existing = _logic.ReadFigure(id);
+            if (existing == null)
+            {
+                Console.WriteLine("Фигурка не найдена.");
+                return;
+            }
+
+            string name = ReadNonEmptyString("Новое название: ");
+            string character = ReadNonEmptyString("Новый персонаж: ");
+            string anime = ReadNonEmptyString("Новое аниме: ");
+            string manufacturer = ReadNonEmptyString("Новый производитель: ");
+            decimal price = ReadDecimal("Новая цена: ", 0);
+            string scale = ReadScale("Новый масштаб: ");
+            double height = ReadDouble("Новая высота: ", 0);
+            DateTime releaseDate = ReadDate("Новая дата выхода");
+            int inStock = ReadInt("Новое количество: ", 0);
 
             if (_logic.UpdateFigure(id, name, character, anime, manufacturer,
-                                    price, scale, height, inStock))
-                System.Console.WriteLine("Обновлено успешно");
+                                    price, scale, height, releaseDate, inStock))
+                Console.WriteLine("Обновлено успешно");
             else
-                System.Console.WriteLine("Фигурка не найдена");
+                Console.WriteLine("Фигурка не найдена");
         }
 
         static void DeleteFigure()
         {
-            System.Console.Write("ID для удаления: ");
-            int id = int.Parse(System.Console.ReadLine());
+            int id = ReadInt("ID для удаления: ", 1);
             if (_logic.DeleteFigure(id))
-                System.Console.WriteLine("Удалено успешно");
+                Console.WriteLine("Удалено успешно");
             else
-                System.Console.WriteLine("Фигурка не найдена");
+                Console.WriteLine("Фигурка не найдена");
         }
 
         static void ShowAll()
         {
             var figures = _logic.GetAllFigures();
+            if (figures.Count == 0)
+            {
+                Console.WriteLine("Список пуст.");
+                return;
+            }
             foreach (var figure in figures)
-                System.Console.WriteLine(figure);
+                Console.WriteLine(figure);
         }
+
+        // ---------- БИЗНЕС-ФУНКЦИИ ----------
 
         static void GroupByManufacturer()
         {
             var groups = _logic.GroupByManufacturer();
-            System.Console.WriteLine("\n📊 Группировка по производителям:");
+            Console.WriteLine("\n📊 Группировка по производителям:");
             foreach (var group in groups)
-                System.Console.WriteLine($"  {group.Key}: {group.Value} шт.");
+                Console.WriteLine($"  {group.Key}: {group.Value} шт.");
         }
 
         static void FilterByScale()
         {
-            System.Console.Write("Введите масштаб: ");
-            string scale = System.Console.ReadLine();
+            string scale = ReadScale("Введите масштаб: ");
             var filtered = _logic.FilterByScale(scale);
-            System.Console.WriteLine($"\n Фигурки масштаба '{scale}':");
+            Console.WriteLine($"\nФигурки масштаба '{scale}':");
+            if (filtered.Count == 0)
+            {
+                Console.WriteLine("  Ничего не найдено.");
+                return;
+            }
             foreach (var figure in filtered)
-                System.Console.WriteLine($"  {figure}");
+                Console.WriteLine($"  {figure}");
         }
     }
 }

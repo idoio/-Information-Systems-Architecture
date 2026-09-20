@@ -13,22 +13,22 @@
         /// <summary>
         /// Название фигурки
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Имя персонажа
         /// </summary>
-        public string Character { get; set; }
+        public string Character { get; set; } = string.Empty;
 
         /// <summary>
         /// Название аниме
         /// </summary>
-        public string Anime { get; set; }
+        public string Anime { get; set; } = string.Empty;
 
         /// <summary>
         /// Производитель фигурки
         /// </summary>
-        public string Manufacturer { get; set; }
+        public string Manufacturer { get; set; } = string.Empty;
 
         /// <summary>
         /// Цена фигурки в рублях
@@ -38,7 +38,7 @@
         /// <summary>
         /// Масштаб фигурки (1/4, 1/7, 1/8, Nendoroid и т.д.)
         /// </summary>
-        public string Scale { get; set; }
+        public string Scale { get; set; } = string.Empty;
 
         /// <summary>
         /// Высота фигурки в сантиметрах
@@ -87,7 +87,8 @@
         /// </summary>
         public override string ToString()
         {
-            return $"[{Id}] {Name} ({Character} из {Anime}) — {Manufacturer}, {Scale}, {Price} ₽";
+            return $"[{Id}] {Name} ({Character} из {Anime}) — {Manufacturer}, {Scale}, {Price} ₽, " +
+                   $"в наличии: {InStock} шт., дата выхода: {ReleaseDate:dd.MM.yyyy}";
         }
     }
 }

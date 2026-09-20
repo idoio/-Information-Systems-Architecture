@@ -1,4 +1,4 @@
-using AnimeFigures.Logic;
+п»їusing AnimeFigures.Logic;
 using AnimeFigures.Model;
 
 namespace AnimeFigures.WinForms
@@ -8,123 +8,19 @@ namespace AnimeFigures.WinForms
         private readonly FigureLogic _logic;
         private BindingSource _bindingSource;
 
-        // Элементы управления
-        private DataGridView dataGridView1;
-        private TextBox txtName, txtCharacter, txtAnime, txtManufacturer, txtPrice, txtScale, txtHeight, txtInStock, txtScaleFilter;
-        private DateTimePicker dtpRelease;
-        private Button btnCreate, btnUpdate, btnDelete, btnGroupByManufacturer, btnFilterByScale, btnShowAll;
-        private Label lblName, lblCharacter, lblAnime, lblManufacturer, lblPrice, lblScale, lblHeight, lblInStock, lblRelease, lblScaleFilter;
-
         public MainForm()
         {
-            InitializeCustomComponents();
+            InitializeComponent();
             _logic = new FigureLogic();
             _logic.AddDefaultFigures();
             InitializeDataGridView();
             LoadFigures();
         }
 
-        private void InitializeCustomComponents()
-        {
-            this.Text = "Магазин аниме-фигурок";
-            this.Size = new Size(1200, 800);
-            this.StartPosition = FormStartPosition.CenterScreen;
-
-            // Создаем метки
-            lblName = CreateLabel("Название:", 10, 10);
-            lblCharacter = CreateLabel("Персонаж:", 10, 40);
-            lblAnime = CreateLabel("Аниме:", 10, 70);
-            lblManufacturer = CreateLabel("Производитель:", 10, 100);
-            lblPrice = CreateLabel("Цена:", 10, 130);
-            lblScale = CreateLabel("Масштаб:", 10, 160);
-            lblHeight = CreateLabel("Высота (см):", 10, 190);
-            lblInStock = CreateLabel("В наличии:", 10, 220);
-            lblRelease = CreateLabel("Дата выхода:", 10, 250);
-            lblScaleFilter = CreateLabel("Фильтр по масштабу:", 10, 310);
-
-            // Создаем текстовые поля
-            txtName = CreateTextBox(150, 10);
-            txtCharacter = CreateTextBox(150, 40);
-            txtAnime = CreateTextBox(150, 70);
-            txtManufacturer = CreateTextBox(150, 100);
-            txtPrice = CreateTextBox(150, 130);
-            txtScale = CreateTextBox(150, 160);
-            txtHeight = CreateTextBox(150, 190);
-            txtInStock = CreateTextBox(150, 220);
-            txtScaleFilter = CreateTextBox(150, 310);
-
-            // Создаем DatePicker
-            dtpRelease = new DateTimePicker();
-            dtpRelease.Location = new Point(150, 250);
-            dtpRelease.Size = new Size(200, 20);
-            this.Controls.Add(dtpRelease);
-
-            // Создаем кнопки
-            btnCreate = CreateButton("Добавить", 10, 280, 100, 30);
-            btnUpdate = CreateButton("Обновить", 120, 280, 100, 30);
-            btnDelete = CreateButton("Удалить", 230, 280, 100, 30);
-            btnGroupByManufacturer = CreateButton("По производителям", 10, 340, 150, 30);
-            btnFilterByScale = CreateButton("Фильтровать", 170, 340, 100, 30);
-            btnShowAll = CreateButton("Показать все", 280, 340, 100, 30);
-
-            // Добавляем обработчики событий
-            btnCreate.Click += btnCreate_Click;
-            btnUpdate.Click += btnUpdate_Click;
-            btnDelete.Click += btnDelete_Click;
-            btnGroupByManufacturer.Click += btnGroupByManufacturer_Click;
-            btnFilterByScale.Click += btnFilterByScale_Click;
-            btnShowAll.Click += btnShowAll_Click;
-
-            // Добавляем все элементы на форму
-            this.Controls.AddRange(new Control[] {
-                lblName, lblCharacter, lblAnime, lblManufacturer, lblPrice, lblScale, lblHeight, lblInStock, lblRelease, lblScaleFilter,
-                txtName, txtCharacter, txtAnime, txtManufacturer, txtPrice, txtScale, txtHeight, txtInStock, txtScaleFilter,
-                btnCreate, btnUpdate, btnDelete, btnGroupByManufacturer, btnFilterByScale, btnShowAll
-            });
-        }
-
-        private Label CreateLabel(string text, int x, int y)
-        {
-            var label = new Label();
-            label.Text = text;
-            label.Location = new Point(x, y);
-            label.AutoSize = true;
-            this.Controls.Add(label);
-            return label;
-        }
-
-        private TextBox CreateTextBox(int x, int y)
-        {
-            var textBox = new TextBox();
-            textBox.Location = new Point(x, y);
-            textBox.Size = new Size(200, 20);
-            this.Controls.Add(textBox);
-            return textBox;
-        }
-
-        private Button CreateButton(string text, int x, int y, int width, int height)
-        {
-            var button = new Button();
-            button.Text = text;
-            button.Location = new Point(x, y);
-            button.Size = new Size(width, height);
-            this.Controls.Add(button);
-            return button;
-        }
-
         private void InitializeDataGridView()
         {
-            dataGridView1 = new DataGridView();
-            dataGridView1.Location = new Point(400, 10);
-            dataGridView1.Size = new Size(750, 700);
-            dataGridView1.ReadOnly = true;
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-
             _bindingSource = new BindingSource();
             dataGridView1.DataSource = _bindingSource;
-
-            this.Controls.Add(dataGridView1);
         }
 
         private void LoadFigures()
@@ -133,86 +29,130 @@ namespace AnimeFigures.WinForms
             dataGridView1.Refresh();
         }
 
+        private Figure GetSelectedFigure()
+        {
+            return _bindingSource.Current as Figure;
+        }
+
         private void btnCreate_Click(object sender, EventArgs e)
         {
             try
             {
+                if (!decimal.TryParse(txtPrice.Text, out decimal price) || price < 0)
+                {
+                    MessageBox.Show("Р¦РµРЅР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµРѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј С‡РёСЃР»РѕРј!", "РћС€РёР±РєР° РІРІРѕРґР°",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (!double.TryParse(txtHeight.Text, out double height) || height < 0)
+                {
+                    MessageBox.Show("Р’С‹СЃРѕС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµРѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј С‡РёСЃР»РѕРј!", "РћС€РёР±РєР° РІРІРѕРґР°",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (!int.TryParse(txtInStock.Text, out int inStock) || inStock < 0)
+                {
+                    MessageBox.Show("РљРѕР»РёС‡РµСЃС‚РІРѕ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РЅРµРѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј С†РµР»С‹Рј С‡РёСЃР»РѕРј!", "РћС€РёР±РєР° РІРІРѕРґР°",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 _logic.CreateFigure(
                     txtName.Text.Trim(),
                     txtCharacter.Text.Trim(),
                     txtAnime.Text.Trim(),
                     txtManufacturer.Text.Trim(),
-                    decimal.Parse(txtPrice.Text),
+                    price,
                     txtScale.Text.Trim(),
-                    double.Parse(txtHeight.Text),
+                    height,
                     dtpRelease.Value,
-                    int.Parse(txtInStock.Text)
+                    inStock
                 );
                 LoadFigures();
                 ClearFields();
-                MessageBox.Show("Фигурка добавлена!", "Успех",
+                MessageBox.Show("Р¤РёРіСѓСЂРєР° РґРѕР±Р°РІР»РµРЅР°!", "РЈСЃРїРµС…",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                MessageBox.Show($"РћС€РёР±РєР°: {ex.Message}", "РћС€РёР±РєР°",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnUpdate_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count == 0)
+            var selected = GetSelectedFigure();
+            if (selected == null)
             {
-                MessageBox.Show("Выберите фигурку!", "Внимание",
+                MessageBox.Show("Р’С‹Р±РµСЂРёС‚Рµ С„РёРіСѓСЂРєСѓ!", "Р’РЅРёРјР°РЅРёРµ",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
-                int id = ((Figure)dataGridView1.SelectedRows[0].DataBoundItem).Id;
+                if (!decimal.TryParse(txtPrice.Text, out decimal price) || price < 0)
+                {
+                    MessageBox.Show("Р¦РµРЅР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµРѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј С‡РёСЃР»РѕРј!", "РћС€РёР±РєР° РІРІРѕРґР°",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (!double.TryParse(txtHeight.Text, out double height) || height < 0)
+                {
+                    MessageBox.Show("Р’С‹СЃРѕС‚Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РЅРµРѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј С‡РёСЃР»РѕРј!", "РћС€РёР±РєР° РІРІРѕРґР°",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (!int.TryParse(txtInStock.Text, out int inStock) || inStock < 0)
+                {
+                    MessageBox.Show("РљРѕР»РёС‡РµСЃС‚РІРѕ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РЅРµРѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹Рј С†РµР»С‹Рј С‡РёСЃР»РѕРј!", "РћС€РёР±РєР° РІРІРѕРґР°",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 _logic.UpdateFigure(
-                    id,
+                    selected.Id,
                     txtName.Text.Trim(),
                     txtCharacter.Text.Trim(),
                     txtAnime.Text.Trim(),
                     txtManufacturer.Text.Trim(),
-                    decimal.Parse(txtPrice.Text),
+                    price,
                     txtScale.Text.Trim(),
-                    double.Parse(txtHeight.Text),
-                    int.Parse(txtInStock.Text)
+                    height,
+                    dtpRelease.Value,
+                    inStock
                 );
                 LoadFigures();
-                MessageBox.Show("Данные обновлены!", "Успех",
+                MessageBox.Show("Р”Р°РЅРЅС‹Рµ РѕР±РЅРѕРІР»РµРЅС‹!", "РЈСЃРїРµС…",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                MessageBox.Show($"РћС€РёР±РєР°: {ex.Message}", "РћС€РёР±РєР°",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if (dataGridView1.SelectedRows.Count == 0)
+            var selected = GetSelectedFigure();
+            if (selected == null)
             {
-                MessageBox.Show("Выберите фигурку!", "Внимание",
+                MessageBox.Show("Р’С‹Р±РµСЂРёС‚Рµ С„РёРіСѓСЂРєСѓ!", "Р’РЅРёРјР°РЅРёРµ",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            var result = MessageBox.Show("Удалить выбранную фигурку?", "Подтверждение",
+            var result = MessageBox.Show($"РЈРґР°Р»РёС‚СЊ С„РёРіСѓСЂРєСѓ \"{selected.Name}\"?", "РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
             {
-                int id = ((Figure)dataGridView1.SelectedRows[0].DataBoundItem).Id;
-                if (_logic.DeleteFigure(id))
+                if (_logic.DeleteFigure(selected.Id))
                 {
                     LoadFigures();
-                    MessageBox.Show("Фигурка удалена!", "Успех",
+                    MessageBox.Show("Р¤РёРіСѓСЂРєР° СѓРґР°Р»РµРЅР°!", "РЈСЃРїРµС…",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
@@ -221,12 +161,19 @@ namespace AnimeFigures.WinForms
         private void btnGroupByManufacturer_Click(object sender, EventArgs e)
         {
             var groups = _logic.GroupByManufacturer();
-            string message = "?? Группировка по производителям:\n\n";
+            if (groups.Count == 0)
+            {
+                MessageBox.Show("РќРµС‚ РґР°РЅРЅС‹С… РґР»СЏ РіСЂСѓРїРїРёСЂРѕРІРєРё.", "РЎС‚Р°С‚РёСЃС‚РёРєР°",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            string message = "рџ“Љ Р“СЂСѓРїРїРёСЂРѕРІРєР° РїРѕ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЏРј:\n\n";
             foreach (var group in groups)
             {
-                message += $"{group.Key}: {group.Value} шт.\n";
+                message += $"{group.Key}: {group.Value} С€С‚.\n";
             }
-            MessageBox.Show(message, "Статистика",
+            MessageBox.Show(message, "РЎС‚Р°С‚РёСЃС‚РёРєР°",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
@@ -235,7 +182,7 @@ namespace AnimeFigures.WinForms
             string scale = txtScaleFilter.Text.Trim();
             if (string.IsNullOrEmpty(scale))
             {
-                MessageBox.Show("Введите масштаб для фильтрации!", "Внимание",
+                MessageBox.Show("Р’РІРµРґРёС‚Рµ РјР°СЃС€С‚Р°Р± РґР»СЏ С„РёР»СЊС‚СЂР°С†РёРё!", "Р’РЅРёРјР°РЅРёРµ",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
@@ -243,18 +190,26 @@ namespace AnimeFigures.WinForms
             try
             {
                 var filtered = _logic.FilterByScale(scale);
+                if (filtered.Count == 0)
+                {
+                    MessageBox.Show($"Р¤РёРіСѓСЂРєРё СЃ РјР°СЃС€С‚Р°Р±РѕРј '{scale}' РЅРµ РЅР°Р№РґРµРЅС‹.", "Р РµР·СѓР»СЊС‚Р°С‚",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
                 _bindingSource.DataSource = filtered;
                 dataGridView1.Refresh();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                MessageBox.Show($"РћС€РёР±РєР°: {ex.Message}", "РћС€РёР±РєР°",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnShowAll_Click(object sender, EventArgs e)
         {
+            txtScaleFilter.Clear();
             LoadFigures();
         }
 
