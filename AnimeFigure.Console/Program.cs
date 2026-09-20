@@ -126,9 +126,11 @@ namespace AnimeFigures.ConsoleApp
         }
 
         /// <summary>
-        /// Запрашивает масштаб у пользователя с проверкой через общую логику валидации
+        /// Запрашивает масштаб с проверкой на допустимые значения.
+        /// Допустимо: "1/4", "1/6", "1/7", "1/8", "1/10", "Nendoroid", "Figuarts", "Figma", "Scale".
+        /// Разделитель ':' нормализуется в '/'.
         /// </summary>
-        /// <param name="prompt">Текст приглашения для ввода</param>
+        /// <param name="prompt">Текст приглашения</param>
         /// <returns>Введённый масштаб в нормализованном виде</returns>
         static string ReadScale(string prompt)
         {
@@ -164,7 +166,7 @@ namespace AnimeFigures.ConsoleApp
             }
         }
 
-        // ---------- CRUD ----------
+        //CRUD 
 
         /// <summary>
         /// Запрашивает данные у пользователя и создаёт новую фигурку
@@ -253,7 +255,7 @@ namespace AnimeFigures.ConsoleApp
                 Console.WriteLine(figure);
         }
 
-        // ---------- БИЗНЕС-ФУНКЦИИ ----------
+        //БИЗНЕС-ФУНКЦИИ
 
         /// <summary>
         /// Выводит группировку фигурок по производителям

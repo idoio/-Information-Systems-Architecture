@@ -253,6 +253,8 @@ namespace AnimeFigures.Logic
 
         /// <summary>
         /// Проверяет корректность масштаба без выброса исключения (паттерн TryParse).
+        /// Допустимо: "1/4", "1/6", "1/7", "1/8", "1/10", "Nendoroid", "Figuarts", "Figma", "Scale".
+        /// Разделитель ':' нормализуется в '/'.
         /// Используется в UI для удобного вывода ошибки пользователю.
         /// </summary>
         /// <param name="scale">Проверяемый масштаб</param>
@@ -287,9 +289,14 @@ namespace AnimeFigures.Logic
         }
 
         /// <summary>
-        /// Проверяет, что масштаб задан в допустимом формате.
-        /// Бросает исключение, если масштаб недопустим.
+        /// Проверяет, что масштаб задан в допустимом формате и входит в список разрешённых.
+        /// Допустимо: "1/4", "1/6", "1/7", "1/8", "1/10", "Nendoroid", "Figuarts", "Figma", "Scale".
+        /// Разделитель ':' нормализуется в '/'.
         /// </summary>
+        /// <param name="scale">Проверяемый масштаб</param>
+        /// <exception cref="ArgumentException">
+        /// Бросается, если масштаб пустой или не входит в список допустимых.
+        /// </exception>
         private static void ValidateScale(string scale)
         {
             if (!TryValidateScale(scale, out string errorMessage))
