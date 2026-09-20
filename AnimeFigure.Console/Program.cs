@@ -3,13 +3,16 @@ using AnimeFigures.Model;
 
 namespace AnimeFigures.ConsoleApp
 {
+    /// <summary>
+    /// Консольное приложение для управления магазином аниме-фигурок
+    /// </summary>
     class Program
     {
         static readonly FigureLogic _logic = new FigureLogic();
 
         static void Main(string[] args)
         {
-            Console.WriteLine("=== МАГАЗИН АНИМЕ-ФИГУРОК ===\n");
+            Console.WriteLine("МАГАЗИН АНИМЕ-ФИГУРОК\n");
             _logic.AddDefaultFigures();
 
             bool exit = false;
@@ -35,9 +38,12 @@ namespace AnimeFigures.ConsoleApp
             }
         }
 
+        /// <summary>
+        /// Отображает главное меню приложения
+        /// </summary>
         static void ShowMenu()
         {
-            Console.WriteLine("\n=== МЕНЮ ===");
+            Console.WriteLine("\nМЕНЮ");
             Console.WriteLine("1. Добавить фигурку");
             Console.WriteLine("2. Показать фигурку по ID");
             Console.WriteLine("3. Обновить фигурку");
@@ -49,8 +55,14 @@ namespace AnimeFigures.ConsoleApp
             Console.Write("Выбор: ");
         }
 
-        // ---------- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ВВОДА ----------
+        //ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ВВОДА
 
+        /// <summary>
+        /// Запрашивает у пользователя целое число. Повторяет ввод, пока не будет корректно.
+        /// </summary>
+        /// <param name="prompt">Текст приглашения</param>
+        /// <param name="minValue">Минимально допустимое значение</param>
+        /// <returns>Введённое число</returns>
         static int ReadInt(string prompt, int minValue = int.MinValue)
         {
             while (true)
@@ -62,6 +74,12 @@ namespace AnimeFigures.ConsoleApp
             }
         }
 
+        /// <summary>
+        /// Запрашивает у пользователя decimal. Повторяет ввод, пока не будет корректно.
+        /// </summary>
+        /// <param name="prompt">Текст приглашения</param>
+        /// <param name="minValue">Минимально допустимое значение</param>
+        /// <returns>Введённое число</returns>
         static decimal ReadDecimal(string prompt, decimal minValue = 0)
         {
             while (true)
@@ -73,6 +91,12 @@ namespace AnimeFigures.ConsoleApp
             }
         }
 
+        /// <summary>
+        /// Запрашивает у пользователя double. Повторяет ввод, пока не будет корректно.
+        /// </summary>
+        /// <param name="prompt">Текст приглашения</param>
+        /// <param name="minValue">Минимально допустимое значение</param>
+        /// <returns>Введённое число</returns>
         static double ReadDouble(string prompt, double minValue = 0)
         {
             while (true)
@@ -84,6 +108,11 @@ namespace AnimeFigures.ConsoleApp
             }
         }
 
+        /// <summary>
+        /// Запрашивает непустую строку.
+        /// </summary>
+        /// <param name="prompt">Текст приглашения</param>
+        /// <returns>Введённая строка без пробелов по краям</returns>
         static string ReadNonEmptyString(string prompt)
         {
             while (true)
@@ -101,6 +130,8 @@ namespace AnimeFigures.ConsoleApp
         /// Допустимо: "1/4", "1/6", "1/7", "1/8", "1/10", "Nendoroid", "Figuarts", "Figma", "Scale".
         /// Разделитель ':' нормализуется в '/'.
         /// </summary>
+        /// <param name="prompt">Текст приглашения</param>
+        /// <returns>Введённый масштаб в нормализованном виде</returns>
         static string ReadScale(string prompt)
         {
             string[] allowedFraction = { "1/4", "1/6", "1/7", "1/8", "1/10" };
@@ -135,6 +166,11 @@ namespace AnimeFigures.ConsoleApp
             }
         }
 
+        /// <summary>
+        /// Запрашивает дату в формате ДД.ММ.ГГГГ.
+        /// </summary>
+        /// <param name="prompt">Текст приглашения</param>
+        /// <returns>Введённая дата</returns>
         static DateTime ReadDate(string prompt)
         {
             while (true)
@@ -148,6 +184,9 @@ namespace AnimeFigures.ConsoleApp
 
         // ---------- CRUD ----------
 
+        /// <summary>
+        /// Запрашивает данные у пользователя и создаёт новую фигурку
+        /// </summary>
         static void CreateFigure()
         {
             string name = ReadNonEmptyString("Название: ");
@@ -165,6 +204,9 @@ namespace AnimeFigures.ConsoleApp
             Console.WriteLine($"Фигурка добавлена с ID: {figure.Id}");
         }
 
+        /// <summary>
+        /// Запрашивает ID и выводит фигурку
+        /// </summary>
         static void ReadFigure()
         {
             int id = ReadInt("Введите ID: ", 1);
@@ -172,6 +214,9 @@ namespace AnimeFigures.ConsoleApp
             Console.WriteLine(figure != null ? figure.ToString() : "Не найдена");
         }
 
+        /// <summary>
+        /// Запрашивает ID и новые данные, обновляет фигурку
+        /// </summary>
         static void UpdateFigure()
         {
             int id = ReadInt("ID для обновления: ", 1);
@@ -199,6 +244,9 @@ namespace AnimeFigures.ConsoleApp
                 Console.WriteLine("Фигурка не найдена");
         }
 
+        /// <summary>
+        /// Запрашивает ID и удаляет фигурку
+        /// </summary>
         static void DeleteFigure()
         {
             int id = ReadInt("ID для удаления: ", 1);
@@ -208,6 +256,9 @@ namespace AnimeFigures.ConsoleApp
                 Console.WriteLine("Фигурка не найдена");
         }
 
+        /// <summary>
+        /// Выводит все фигурки
+        /// </summary>
         static void ShowAll()
         {
             var figures = _logic.GetAllFigures();
@@ -222,14 +273,20 @@ namespace AnimeFigures.ConsoleApp
 
         // ---------- БИЗНЕС-ФУНКЦИИ ----------
 
+        /// <summary>
+        /// Выводит группировку фигурок по производителям
+        /// </summary>
         static void GroupByManufacturer()
         {
             var groups = _logic.GroupByManufacturer();
-            Console.WriteLine("\n📊 Группировка по производителям:");
+            Console.WriteLine("\nГруппировка по производителям:");
             foreach (var group in groups)
                 Console.WriteLine($"  {group.Key}: {group.Value} шт.");
         }
 
+        /// <summary>
+        /// Запрашивает масштаб и выводит отфильтрованные фигурки
+        /// </summary>
         static void FilterByScale()
         {
             string scale = ReadScale("Введите масштаб: ");

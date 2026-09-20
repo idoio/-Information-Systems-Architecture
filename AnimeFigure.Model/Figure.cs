@@ -66,6 +66,16 @@
         /// <summary>
         /// Конструктор с основными параметрами
         /// </summary>
+        /// <param name="id">Уникальный идентификатор фигурки</param>
+        /// <param name="name">Название фигурки</param>
+        /// <param name="character">Имя персонажа</param>
+        /// <param name="anime">Название аниме</param>
+        /// <param name="manufacturer">Производитель</param>
+        /// <param name="price">Цена</param>
+        /// <param name="scale">Масштаб</param>
+        /// <param name="height">Высота в см</param>
+        /// <param name="releaseDate">Дата выхода</param>
+        /// <param name="inStock">Количество на складе</param>
         public Figure(int id, string name, string character, string anime,
                       string manufacturer, decimal price, string scale,
                       double height, DateTime releaseDate, int inStock)
@@ -85,9 +95,10 @@
         /// <summary>
         /// Переопределение ToString для удобного отображения
         /// </summary>
+        /// <returns>Строка с информацией о фигурке</returns>
         public override string ToString()
         {
-            return $"[{Id}] {Name} ({Character} из {Anime}) — {Manufacturer}, {Scale}, {Price} ₽, " +
+            return $"[{Id}] {Name} ({Character} из {Anime}) — {Manufacturer}, {Scale}, {Price}р., " +
                    $"в наличии: {InStock} шт., дата выхода: {ReleaseDate:dd.MM.yyyy}";
         }
     }

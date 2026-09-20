@@ -3,11 +3,17 @@ using AnimeFigures.Model;
 
 namespace AnimeFigures.WinForms
 {
+    /// <summary>
+    /// Главная форма приложения магазина аниме-фигурок
+    /// </summary>
     public partial class MainForm : Form
     {
         private readonly FigureLogic _logic;
         private BindingSource _bindingSource;
 
+        /// <summary>
+        /// Конструктор главной формы
+        /// </summary>
         public MainForm()
         {
             InitializeComponent();
@@ -17,23 +23,36 @@ namespace AnimeFigures.WinForms
             LoadFigures();
         }
 
+        /// <summary>
+        /// Инициализирует источник данных для DataGridView
+        /// </summary>
         private void InitializeDataGridView()
         {
             _bindingSource = new BindingSource();
             dataGridView1.DataSource = _bindingSource;
         }
 
+        /// <summary>
+        /// Загружает все фигурки в таблицу
+        /// </summary>
         private void LoadFigures()
         {
             _bindingSource.DataSource = _logic.GetAllFigures();
             dataGridView1.Refresh();
         }
 
+        /// <summary>
+        /// Возвращает выбранную фигурку или null, если ничего не выбрано
+        /// </summary>
+        /// <returns>Выбранная фигурка или null</returns>
         private Figure GetSelectedFigure()
         {
             return _bindingSource.Current as Figure;
         }
 
+        /// <summary>
+        /// Обработчик кнопки "Добавить": создаёт новую фигурку
+        /// </summary>
         private void btnCreate_Click(object sender, EventArgs e)
         {
             try
@@ -80,6 +99,9 @@ namespace AnimeFigures.WinForms
             }
         }
 
+        /// <summary>
+        /// Обработчик кнопки "Обновить": обновляет выбранную фигурку
+        /// </summary>
         private void btnUpdate_Click(object sender, EventArgs e)
         {
             var selected = GetSelectedFigure();
@@ -134,6 +156,9 @@ namespace AnimeFigures.WinForms
             }
         }
 
+        /// <summary>
+        /// Обработчик кнопки "Удалить": удаляет выбранную фигурку
+        /// </summary>
         private void btnDelete_Click(object sender, EventArgs e)
         {
             var selected = GetSelectedFigure();
@@ -158,6 +183,9 @@ namespace AnimeFigures.WinForms
             }
         }
 
+        /// <summary>
+        /// Обработчик кнопки "По производителям": показывает статистику
+        /// </summary>
         private void btnGroupByManufacturer_Click(object sender, EventArgs e)
         {
             var groups = _logic.GroupByManufacturer();
@@ -168,7 +196,7 @@ namespace AnimeFigures.WinForms
                 return;
             }
 
-            string message = "📊 Группировка по производителям:\n\n";
+            string message = "Группировка по производителям:\n\n";
             foreach (var group in groups)
             {
                 message += $"{group.Key}: {group.Value} шт.\n";
@@ -177,6 +205,9 @@ namespace AnimeFigures.WinForms
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        /// <summary>
+        /// Обработчик кнопки "Фильтровать": фильтрует фигурки по масштабу
+        /// </summary>
         private void btnFilterByScale_Click(object sender, EventArgs e)
         {
             string scale = txtScaleFilter.Text.Trim();
@@ -207,12 +238,18 @@ namespace AnimeFigures.WinForms
             }
         }
 
+        /// <summary>
+        /// Обработчик кнопки "Показать все": сбрасывает фильтр и показывает все фигурки
+        /// </summary>
         private void btnShowAll_Click(object sender, EventArgs e)
         {
             txtScaleFilter.Clear();
             LoadFigures();
         }
 
+        /// <summary>
+        /// Очищает все поля ввода
+        /// </summary>
         private void ClearFields()
         {
             txtName.Clear();
