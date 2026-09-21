@@ -199,7 +199,10 @@ namespace AnimeFigures.WinForms
             string message = "Группировка по производителям:\n\n";
             foreach (var group in groups)
             {
-                message += $"{group.Key}: {group.Value} шт.\n";
+                message += $"{group.Key} ({group.Value.Count} шт.):\n";
+                foreach (var figure in group.Value)
+                    message += $"   • {figure.Name} — {figure.Price} р\n";
+                message += "\n";
             }
             MessageBox.Show(message, "Статистика",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);

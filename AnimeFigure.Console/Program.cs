@@ -323,10 +323,24 @@ namespace AnimeFigures.ConsoleApp
         static void GroupByManufacturer()
         {
             Console.Clear();
-            var groups = _logic.GroupByManufacturer();
+            
             Console.WriteLine("\nГруппировка по производителям:");
+            var groups = _logic.GroupByManufacturer();
+            if (groups.Count == 0)
+            {
+                Console.WriteLine("Нет данных для группировки.");
+                WaitForUser();
+                return;
+            }
+
             foreach (var group in groups)
-                Console.WriteLine($"  {group.Key}: {group.Value} шт.");
+            {
+                Console.WriteLine($"{group.Key} ({group.Value.Count} шт.):");
+                foreach (var figure in group.Value)
+                    Console.WriteLine($"   {figure}");
+                Console.WriteLine();
+            }
+
             WaitForUser();
         }
 

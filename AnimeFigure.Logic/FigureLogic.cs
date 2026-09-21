@@ -155,14 +155,15 @@ namespace AnimeFigures.Logic
         #region Бизнес-функции
 
         /// <summary>
-        /// Группирует фигурки по производителю с подсчётом количества
+        /// Группирует фигурки по производителю.
+        /// Возвращает словарь: ключ — производитель, значение — список фигурок этого производителя.
         /// </summary>
-        /// <returns>Словарь: ключ — производитель, значение — количество фигурок</returns>
-        public Dictionary<string, int> GroupByManufacturer()
+        /// <returns>Словарь: производитель → список фигурок</returns>
+        public Dictionary<string, List<Figure>> GroupByManufacturer()
         {
             return _figures
                 .GroupBy(f => f.Manufacturer)
-                .ToDictionary(g => g.Key, g => g.Count());
+                .ToDictionary(g => g.Key, g => g.ToList());
         }
 
         /// <summary>
