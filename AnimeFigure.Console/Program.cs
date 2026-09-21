@@ -14,10 +14,12 @@ namespace AnimeFigures.ConsoleApp
         {
             Console.WriteLine("МАГАЗИН АНИМЕ-ФИГУРОК\n");
             _logic.AddDefaultFigures();
+            
 
             bool exit = false;
             while (!exit)
             {
+                Console.Clear();
                 ShowMenu();
                 string choice = Console.ReadLine();
 
@@ -37,6 +39,16 @@ namespace AnimeFigures.ConsoleApp
                 }
             }
         }
+
+        /// <summary>
+        /// Ожидает нажатия Enter, чтобы пользователь успел прочитать результат
+        /// </summary>
+        static void WaitForUser()
+        {
+            Console.WriteLine("\nНажмите Enter для продолжения...");
+            Console.ReadLine();
+        }
+
 
         /// <summary>
         /// Отображает главное меню приложения
@@ -173,6 +185,7 @@ namespace AnimeFigures.ConsoleApp
         /// </summary>
         static void CreateFigure()
         {
+            Console.Clear();
             string name = ReadNonEmptyString("Название: ");
             string character = ReadNonEmptyString("Персонаж: ");
             string anime = ReadNonEmptyString("Аниме: ");
@@ -186,6 +199,7 @@ namespace AnimeFigures.ConsoleApp
             var figure = _logic.CreateFigure(name, character, anime, manufacturer,
                                              price, scale, height, releaseDate, inStock);
             Console.WriteLine($"Фигурка добавлена с ID: {figure.Id}");
+            WaitForUser();
         }
 
         /// <summary>
@@ -193,9 +207,11 @@ namespace AnimeFigures.ConsoleApp
         /// </summary>
         static void ReadFigure()
         {
+            Console.Clear();
             int id = ReadInt("Введите ID: ", 1);
             var figure = _logic.ReadFigure(id);
             Console.WriteLine(figure != null ? figure.ToString() : "Не найдена");
+            WaitForUser();
         }
 
         /// <summary>
@@ -203,11 +219,31 @@ namespace AnimeFigures.ConsoleApp
         /// </summary>
         static void UpdateFigure()
         {
-            int id = ReadInt("ID для обновления: ", 1);
+            Console.Clear();
+            var figures = _logic.GetAllFigures();
+            if (figures.Count == 0)
+            {
+                Console.WriteLine("Список фигурок пуст. Нечего обновлять.");
+                return;
+            }
+
+            Console.WriteLine("\nСУЩЕСТВУЮЩИЕ ФИГУРКИ");
+            foreach (var f in figures)
+                Console.WriteLine(f);
+
+            int id = ReadInt("\nID для обновления (0 — отмена): ", 0);
+            if (id == 0)
+            {
+                Console.WriteLine("Отменено.");
+                WaitForUser();
+                return;
+            }
+
             var existing = _logic.ReadFigure(id);
             if (existing == null)
             {
                 Console.WriteLine("Фигурка не найдена.");
+                WaitForUser();
                 return;
             }
 
@@ -226,6 +262,7 @@ namespace AnimeFigures.ConsoleApp
                 Console.WriteLine("Обновлено успешно");
             else
                 Console.WriteLine("Фигурка не найдена");
+            WaitForUser();
         }
 
         /// <summary>
@@ -233,11 +270,32 @@ namespace AnimeFigures.ConsoleApp
         /// </summary>
         static void DeleteFigure()
         {
-            int id = ReadInt("ID для удаления: ", 1);
+            Console.Clear();
+            var figures = _logic.GetAllFigures();
+            if (figures.Count == 0)
+            {
+                Console.WriteLine("Список фигурок пуст. Нечего удалять.");
+                WaitForUser();
+                return;
+            }
+
+            Console.WriteLine("\nСУЩЕСТВУЮЩИЕ ФИГУРКИ");
+            foreach (var f in figures)
+                Console.WriteLine(f);
+
+            int id = ReadInt("\nID для удаления (0 — отмена): ", 0);
+            if (id == 0)
+            {
+                Console.WriteLine("Отменено.");
+                WaitForUser();
+                return;
+            }
+
             if (_logic.DeleteFigure(id))
                 Console.WriteLine("Удалено успешно");
             else
                 Console.WriteLine("Фигурка не найдена");
+            WaitForUser();
         }
 
         /// <summary>
@@ -245,6 +303,7 @@ namespace AnimeFigures.ConsoleApp
         /// </summary>
         static void ShowAll()
         {
+            Console.Clear();
             var figures = _logic.GetAllFigures();
             if (figures.Count == 0)
             {
@@ -253,6 +312,7 @@ namespace AnimeFigures.ConsoleApp
             }
             foreach (var figure in figures)
                 Console.WriteLine(figure);
+            WaitForUser();
         }
 
         //БИЗНЕС-ФУНКЦИИ
@@ -262,10 +322,12 @@ namespace AnimeFigures.ConsoleApp
         /// </summary>
         static void GroupByManufacturer()
         {
+            Console.Clear();
             var groups = _logic.GroupByManufacturer();
             Console.WriteLine("\nГруппировка по производителям:");
             foreach (var group in groups)
                 Console.WriteLine($"  {group.Key}: {group.Value} шт.");
+            WaitForUser();
         }
 
         /// <summary>
@@ -273,6 +335,7 @@ namespace AnimeFigures.ConsoleApp
         /// </summary>
         static void FilterByScale()
         {
+            Console.Clear();
             string scale = ReadScale("Введите масштаб: ");
             var filtered = _logic.FilterByScale(scale);
             Console.WriteLine($"\nФигурки масштаба '{scale}':");
@@ -283,6 +346,7 @@ namespace AnimeFigures.ConsoleApp
             }
             foreach (var figure in filtered)
                 Console.WriteLine($"  {figure}");
+            WaitForUser();
         }
     }
 }
