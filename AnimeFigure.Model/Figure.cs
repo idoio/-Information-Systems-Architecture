@@ -3,7 +3,7 @@
     /// <summary>
     /// Класс, представляющий аниме-фигурку в магазине
     /// </summary>
-    public class Figure
+    public class Figure : IDomainObject
     {
         /// <summary>
         /// Уникальный идентификатор фигурки

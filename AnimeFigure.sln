@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.37710.0 d17.14
+VisualStudioVersion = 17.14.37710.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFigure.Model", "AnimeFigure.Model\AnimeFigure.Model.csproj", "{2CFC4663-C1E4-4F73-AAA9-90992FDB32B9}"
 EndProject
@@ -18,6 +18,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFigure.Console", "AnimeFigure.Console\AnimeFigure.Console.csproj", "{40ABB57C-4163-4986-B47B-AC4124329DF4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{87CD862E-9C0F-49F3-ACC5-6CBD26953CCC} = {87CD862E-9C0F-49F3-ACC5-6CBD26953CCC}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFigures.DataAccessLayer", "AnimeFigures.DataAccessLayer\AnimeFigures.DataAccessLayer.csproj", "{60FAAE82-406F-45BF-88F2-49473C1CD61E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2CFC4663-C1E4-4F73-AAA9-90992FDB32B9} = {2CFC4663-C1E4-4F73-AAA9-90992FDB32B9}
 	EndProjectSection
 EndProject
 Global
@@ -42,6 +47,10 @@ Global
 		{40ABB57C-4163-4986-B47B-AC4124329DF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40ABB57C-4163-4986-B47B-AC4124329DF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40ABB57C-4163-4986-B47B-AC4124329DF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60FAAE82-406F-45BF-88F2-49473C1CD61E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60FAAE82-406F-45BF-88F2-49473C1CD61E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60FAAE82-406F-45BF-88F2-49473C1CD61E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60FAAE82-406F-45BF-88F2-49473C1CD61E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

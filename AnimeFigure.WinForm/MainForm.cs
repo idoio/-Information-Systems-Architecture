@@ -1,4 +1,5 @@
-﻿using AnimeFigures.Logic;
+﻿using AnimeFigures.DataAccessLayer;
+using AnimeFigures.Logic;
 using AnimeFigures.Model;
 
 namespace AnimeFigures.WinForms
@@ -17,7 +18,10 @@ namespace AnimeFigures.WinForms
         public MainForm()
         {
             InitializeComponent();
-            _logic = new FigureLogic();
+            var context = new AppDbContext();
+            context.Database.EnsureCreated();
+            var repository = new EfRepository<Figure>(context);
+            _logic = new FigureLogic(repository);
             _logic.AddDefaultFigures();
             InitializeDataGridView();
             LoadFigures();

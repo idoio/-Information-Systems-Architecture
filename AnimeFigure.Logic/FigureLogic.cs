@@ -1,4 +1,5 @@
 ﻿using AnimeFigures.Model;
+using AnimeFigures.DataAccessLayer;
 
 namespace AnimeFigures.Logic
 {
@@ -8,7 +9,7 @@ namespace AnimeFigures.Logic
     public class FigureLogic
     {
         // Приватное поле — UI не может напрямую изменить
-        private readonly List<Figure> _figures;
+        private readonly IRepository<Figure> _repository;
         private int _nextId;
 
         /// <summary>
@@ -24,10 +25,9 @@ namespace AnimeFigures.Logic
         /// <summary>
         /// Конструктор класса FigureLogic
         /// </summary>
-        public FigureLogic()
+        public FigureLogic(IRepository<Figure> repository)
         {
-            _figures = new List<Figure>();
-            _nextId = 1;
+            _repository = repository;
         }
 
         #region CRUD-операции
@@ -62,10 +62,13 @@ namespace AnimeFigures.Logic
             ValidateInStock(inStock);
             ValidateHeight(height);
 
-            var figure = new Figure(_nextId++, name, character, anime,
+            var allFigures = _repository.ReadAll().ToList();
+            int newId = allFigures.Count > 0 ? allFigures.Max(f => f.Id) + 1 : 1;
+
+            var figure = new Figure(newId, name, character, anime,
                                     manufacturer, price, scale, height,
                                     releaseDate, inStock);
-            _figures.Add(figure);
+            _repository.Add(figure);
             return figure;
         }
 
@@ -76,7 +79,7 @@ namespace AnimeFigures.Logic
         /// <returns>Объект Figure или null, если не найдена</returns>
         public Figure ReadFigure(int id)
         {
-            return _figures.FirstOrDefault(f => f.Id == id);
+            return _repository.ReadById(id);
         }
 
         /// <summary>
@@ -85,7 +88,7 @@ namespace AnimeFigures.Logic
         /// <returns>Копия списка всех фигурок</returns>
         public List<Figure> GetAllFigures()
         {
-            return new List<Figure>(_figures);
+            return _repository.ReadAll().ToList();
         }
 
         /// <summary>
@@ -146,7 +149,7 @@ namespace AnimeFigures.Logic
             if (figure == null)
                 return false;
 
-            _figures.Remove(figure);
+            _repository.Delete(id);
             return true;
         }
 
@@ -161,7 +164,7 @@ namespace AnimeFigures.Logic
         /// <returns>Словарь: производитель → список фигурок</returns>
         public Dictionary<string, List<Figure>> GroupByManufacturer()
         {
-            return _figures
+            return _repository.ReadAll()
                 .GroupBy(f => f.Manufacturer)
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
@@ -180,7 +183,7 @@ namespace AnimeFigures.Logic
             ValidateScale(scale);
             string normalized = scale.Trim().Replace(':', '/');
 
-            return _figures
+            return _repository.ReadAll()
                 .Where(f => f.Scale.Replace(':', '/').Equals(normalized, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
@@ -191,7 +194,7 @@ namespace AnimeFigures.Logic
         /// </summary>
         public void AddDefaultFigures()
         {
-            if (_figures.Count > 0) return;
+            if (_repository.ReadAll().Any()) return;
 
             CreateFigure("Наруто Узумаки", "Наруто", "Наруто", "Good Smile Company", 15000m, "1/7", 25.0, new DateTime(2023, 5, 15), 5);
             CreateFigure("Сон Гоку", "Гоку", "Жемчуг дракона", "Bandai", 8500m, "Nendoroid", 10.0, new DateTime(2022, 11, 20), 12);

@@ -1,4 +1,5 @@
-﻿using AnimeFigures.Logic;
+﻿using AnimeFigures.DataAccessLayer;
+using AnimeFigures.Logic;
 using AnimeFigures.Model;
 
 namespace AnimeFigures.ConsoleApp
@@ -8,10 +9,14 @@ namespace AnimeFigures.ConsoleApp
     /// </summary>
     class Program
     {
-        static readonly FigureLogic _logic = new FigureLogic();
+        private static readonly AppDbContext _context = new AppDbContext();
+        private static readonly IRepository<Figure> _repository = new EfRepository<Figure>(_context);
+        private static readonly FigureLogic _logic = new FigureLogic(_repository);
+ 
 
         static void Main(string[] args)
         {
+            _context.Database.EnsureCreated();
             Console.WriteLine("МАГАЗИН АНИМЕ-ФИГУРОК\n");
             _logic.AddDefaultFigures();
             
