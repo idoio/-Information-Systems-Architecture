@@ -1,5 +1,4 @@
 ﻿using AnimeFigures.Model;
-using System.Collections.Generic;
 
 namespace AnimeFigures.DataAccessLayer
 {
@@ -9,10 +8,29 @@ namespace AnimeFigures.DataAccessLayer
     /// <typeparam name="T">Тип сущности, реализующей IDomainObject</typeparam>
     public interface IRepository<T> where T : IDomainObject
     {
-        void Add(T entity);
-        void Delete(int id);
-        IEnumerable<T> ReadAll();
-        T ReadById(int id);
-        void Update(T entity);
+        /// <summary>
+        /// Добавляет новую сущность. Возвращает добавленную сущность с заполненным Id.
+        /// </summary>
+        T Add(T entity);
+
+        /// <summary>
+        /// Удаляет сущность по Id. Возвращает true, если удаление успешно.
+        /// </summary>
+        bool Delete(int id);
+
+        /// <summary>
+        /// Возвращает все сущности.
+        /// </summary>
+        List<T> ReadAll();
+
+        /// <summary>
+        /// Возвращает сущность по Id или null, если не найдена.
+        /// </summary>
+        T? ReadById(int id);
+
+        /// <summary>
+        /// Обновляет сущность. Возвращает true, если обновление успешно.
+        /// </summary>
+        bool Update(T entity);
     }
 }

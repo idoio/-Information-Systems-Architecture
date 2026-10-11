@@ -11,6 +11,7 @@ namespace AnimeFigures.ConsoleApp
     {
         private static readonly AppDbContext _context = new AppDbContext();
         private static readonly IRepository<Figure> _repository = new EfRepository<Figure>(_context);
+        //private static readonly IRepository<Figure> _repository = new DapperRepository<Figure>();
         private static readonly FigureLogic _logic = new FigureLogic(_repository);
  
 

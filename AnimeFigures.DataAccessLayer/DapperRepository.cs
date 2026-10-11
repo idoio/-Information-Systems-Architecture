@@ -17,17 +17,19 @@ namespace AnimeFigures.DataAccessLayer
         public DapperRepository(string connectionString = "Data Source=figures.db")
         {
             _connectionString = connectionString;
-            // Имя таблицы берем из имени класса (например, "Figure")
+            // Имя таблицы берем из имени класса (например, "Figure" → "Figures")
             _tableName = typeof(T).Name + "s";
 
             // Инициализируем таблицу при первом запуске (для SQLite)
             InitializeDatabase();
         }
 
+        /// <summary>
+        /// Создаёт таблицу, если её ещё нет
+        /// </summary>
         private void InitializeDatabase()
         {
             using var connection = new SqliteConnection(_connectionString);
-            // Dapper не создает таблицы сам, делаем это простым SQL-запросом
             var sql = $@"
                 CREATE TABLE IF NOT EXISTS {_tableName} (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,7 +39,10 @@ namespace AnimeFigures.DataAccessLayer
             connection.Execute(sql);
         }
 
-        public void Add(T entity)
+        /// <summary>
+        /// Добавляет сущность и возвращает её с заполненным Id
+        /// </summary>
+        public T Add(T entity)
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = $@"INSERT INTO {_tableName} (Name, Character, Anime, Manufacturer, Price, Scale, Height, ReleaseDate, InStock) 
@@ -45,38 +50,53 @@ namespace AnimeFigures.DataAccessLayer
                          SELECT last_insert_rowid();";
 
             var id = connection.QuerySingle<int>(sql, entity);
-            entity.Id = id; // Обновляем ID у переданного объекта
+            entity.Id = id;
+            return entity;
         }
 
-        public void Delete(int id)
+        /// <summary>
+        /// Удаляет сущность по Id. Возвращает true, если удаление успешно
+        /// </summary>
+        public bool Delete(int id)
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = $"DELETE FROM {_tableName} WHERE Id = @Id";
-            connection.Execute(sql, new { Id = id });
+            int affected = connection.Execute(sql, new { Id = id });
+            return affected > 0;
         }
 
-        public IEnumerable<T> ReadAll()
+        /// <summary>
+        /// Возвращает все сущности
+        /// </summary>
+        public List<T> ReadAll()
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = $"SELECT * FROM {_tableName}";
             return connection.Query<T>(sql).ToList();
         }
 
-        public T ReadById(int id)
+        /// <summary>
+        /// Возвращает сущность по Id или null, если не найдена
+        /// </summary>
+        public T? ReadById(int id)
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = $"SELECT * FROM {_tableName} WHERE Id = @Id";
             return connection.QuerySingleOrDefault<T>(sql, new { Id = id });
         }
 
-        public void Update(T entity)
+        /// <summary>
+        /// Обновляет сущность. Возвращает true, если обновление успешно
+        /// </summary>
+        public bool Update(T entity)
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = $@"UPDATE {_tableName} SET 
                          Name = @Name, Character = @Character, Anime = @Anime, Manufacturer = @Manufacturer, 
                          Price = @Price, Scale = @Scale, Height = @Height, ReleaseDate = @ReleaseDate, InStock = @InStock 
                          WHERE Id = @Id";
-            connection.Execute(sql, entity);
+            int affected = connection.Execute(sql, entity);
+            return affected > 0;
         }
     }
 }

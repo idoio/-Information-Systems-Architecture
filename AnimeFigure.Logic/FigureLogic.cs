@@ -135,7 +135,7 @@ namespace AnimeFigures.Logic
             figure.Height = height;
             figure.ReleaseDate = releaseDate;
             figure.InStock = inStock;
-            return true;
+            return _repository.Update(figure);
         }
 
         /// <summary>
