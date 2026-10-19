@@ -13,7 +13,7 @@ namespace AnimeFigures.DataAccessLayer
     public class DapperFigureRepository : IRepository<Figure>
     {
         private readonly string _connectionString;
-        private const string TableName = "Figures";
+        private const string TableName = "Figures"; // Явно задаем имя таблицы
 
         /// <summary>
         /// Конструктор репозитория Dapper
@@ -30,14 +30,18 @@ namespace AnimeFigures.DataAccessLayer
         /// </summary>
         private void InitializeDatabase()
         {
-            using var connection = new SqliteConnection(_connectionString);
-            var sql = $@"
-                CREATE TABLE IF NOT EXISTS {TableName} (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Name TEXT, Character TEXT, Anime TEXT, Manufacturer TEXT,
-                    Price REAL, Scale TEXT, Height REAL, ReleaseDate TEXT, InStock INTEGER
-                )";
-            connection.Execute(sql);
+            // Явно открываем и закрываем соединение ADO.NET
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = $@"
+                    CREATE TABLE IF NOT EXISTS {TableName} (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Name TEXT, Character TEXT, Anime TEXT, Manufacturer TEXT,
+                        Price REAL, Scale TEXT, Height REAL, ReleaseDate TEXT, InStock INTEGER
+                    )";
+                connection.Execute(sql);
+            }
         }
 
         /// <summary>
@@ -45,14 +49,18 @@ namespace AnimeFigures.DataAccessLayer
         /// </summary>
         public Figure Add(Figure entity)
         {
-            using var connection = new SqliteConnection(_connectionString);
-            var sql = $@"INSERT INTO {TableName} (Name, Character, Anime, Manufacturer, Price, Scale, Height, ReleaseDate, InStock) 
-                         VALUES (@Name, @Character, @Anime, @Manufacturer, @Price, @Scale, @Height, @ReleaseDate, @InStock);
-                         SELECT last_insert_rowid();";
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = $@"INSERT INTO {TableName} (Name, Character, Anime, Manufacturer, Price, Scale, Height, ReleaseDate, InStock) 
+                             VALUES (@Name, @Character, @Anime, @Manufacturer, @Price, @Scale, @Height, @ReleaseDate, @InStock);
+                             SELECT last_insert_rowid();";
 
-            var id = connection.QuerySingle<int>(sql, entity);
-            entity.Id = id;
-            return entity;
+                // Dapper выполняет SQL и возвращает первый столбец первой строки
+                var id = connection.QuerySingle<int>(sql, entity);
+                entity.Id = id;
+                return entity;
+            }
         }
 
         /// <summary>
@@ -60,10 +68,15 @@ namespace AnimeFigures.DataAccessLayer
         /// </summary>
         public bool Delete(int id)
         {
-            using var connection = new SqliteConnection(_connectionString);
-            var sql = $"DELETE FROM {TableName} WHERE Id = @Id";
-            int affected = connection.Execute(sql, new { Id = id });
-            return affected > 0;
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = $"DELETE FROM {TableName} WHERE Id = @Id";
+
+                // Execute возвращает количество затронутых строк
+                int affectedRows = connection.Execute(sql, new { Id = id });
+                return affectedRows > 0;
+            }
         }
 
         /// <summary>
@@ -71,9 +84,14 @@ namespace AnimeFigures.DataAccessLayer
         /// </summary>
         public List<Figure> ReadAll()
         {
-            using var connection = new SqliteConnection(_connectionString);
-            var sql = $"SELECT * FROM {TableName}";
-            return connection.Query<Figure>(sql).ToList();
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = $"SELECT * FROM {TableName}";
+
+                // ToList() заставляет Dapper выполнить запрос немедленно
+                return connection.Query<Figure>(sql).ToList();
+            }
         }
 
         /// <summary>
@@ -81,23 +99,32 @@ namespace AnimeFigures.DataAccessLayer
         /// </summary>
         public Figure? ReadById(int id)
         {
-            using var connection = new SqliteConnection(_connectionString);
-            var sql = $"SELECT * FROM {TableName} WHERE Id = @Id";
-            return connection.QuerySingleOrDefault<Figure>(sql, new { Id = id });
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = $"SELECT * FROM {TableName} WHERE Id = @Id";
+
+                // QuerySingleOrDefault вернет null, если запись не найдена
+                return connection.QuerySingleOrDefault<Figure>(sql, new { Id = id });
+            }
         }
 
         /// <summary>
-        /// Обновляет данные фигурки
+        /// Обновляет данные фигурки. Возвращает true, если обновление успешно
         /// </summary>
         public bool Update(Figure entity)
         {
-            using var connection = new SqliteConnection(_connectionString);
-            var sql = $@"UPDATE {TableName} SET 
-                         Name = @Name, Character = @Character, Anime = @Anime, Manufacturer = @Manufacturer, 
-                         Price = @Price, Scale = @Scale, Height = @Height, ReleaseDate = @ReleaseDate, InStock = @InStock 
-                         WHERE Id = @Id";
-            int affected = connection.Execute(sql, entity);
-            return affected > 0;
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                var sql = $@"UPDATE {TableName} SET 
+                             Name = @Name, Character = @Character, Anime = @Anime, Manufacturer = @Manufacturer, 
+                             Price = @Price, Scale = @Scale, Height = @Height, ReleaseDate = @ReleaseDate, InStock = @InStock 
+                             WHERE Id = @Id";
+
+                int affectedRows = connection.Execute(sql, entity);
+                return affectedRows > 0;
+            }
         }
     }
 }
