@@ -21,7 +21,7 @@ namespace AnimeFigures.WinForms
             var context = new AppDbContext();
             context.Database.EnsureCreated();
             var repository = new EfRepository<Figure>(context);
-            //var repository = new DapperRepository<Figure>();
+            //var repository = new DapperFigureRepository();
             _logic = new FigureLogic(repository);
             _logic.AddDefaultFigures();
             InitializeDataGridView();

@@ -7,35 +7,32 @@ using System.Linq;
 namespace AnimeFigures.DataAccessLayer
 {
     /// <summary>
-    /// Реализация репозитория с использованием микро-ORM Dapper
+    /// Реализация репозитория для сущности Figure с использованием микро-ORM Dapper.
+    /// Является конкретной реализацией, так как Dapper требует явного написания SQL-запросов.
     /// </summary>
-    public class DapperRepository<T> : IRepository<T> where T : class, IDomainObject, new()
+    public class DapperFigureRepository : IRepository<Figure>
     {
         private readonly string _connectionString;
-        private readonly string _tableName;
+        private const string TableName = "Figures";
 
         /// <summary>
         /// Конструктор репозитория Dapper
         /// </summary>
         /// <param name="connectionString">Строка подключения к базе данных</param>
-        public DapperRepository(string connectionString = "Data Source=figures.db")
+        public DapperFigureRepository(string connectionString = "Data Source=figures.db")
         {
             _connectionString = connectionString;
-            // Имя таблицы берем из имени класса (например, "Figure" → "Figures")
-            _tableName = typeof(T).Name + "s";
-
-            // Инициализируем таблицу при первом запуске (для SQLite)
             InitializeDatabase();
         }
 
         /// <summary>
-        /// Создаёт таблицу, если её ещё нет
+        /// Инициализирует таблицу в базе данных (создает, если нет)
         /// </summary>
         private void InitializeDatabase()
         {
             using var connection = new SqliteConnection(_connectionString);
             var sql = $@"
-                CREATE TABLE IF NOT EXISTS {_tableName} (
+                CREATE TABLE IF NOT EXISTS {TableName} (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Name TEXT, Character TEXT, Anime TEXT, Manufacturer TEXT,
                     Price REAL, Scale TEXT, Height REAL, ReleaseDate TEXT, InStock INTEGER
@@ -44,12 +41,12 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Добавляет сущность и возвращает её с заполненным Id
+        /// Добавляет фигурку и возвращает её с заполненным Id
         /// </summary>
-        public T Add(T entity)
+        public Figure Add(Figure entity)
         {
             using var connection = new SqliteConnection(_connectionString);
-            var sql = $@"INSERT INTO {_tableName} (Name, Character, Anime, Manufacturer, Price, Scale, Height, ReleaseDate, InStock) 
+            var sql = $@"INSERT INTO {TableName} (Name, Character, Anime, Manufacturer, Price, Scale, Height, ReleaseDate, InStock) 
                          VALUES (@Name, @Character, @Anime, @Manufacturer, @Price, @Scale, @Height, @ReleaseDate, @InStock);
                          SELECT last_insert_rowid();";
 
@@ -59,43 +56,43 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Удаляет сущность по Id. Возвращает true, если удаление успешно
+        /// Удаляет фигурку по Id. Возвращает true, если удаление успешно
         /// </summary>
         public bool Delete(int id)
         {
             using var connection = new SqliteConnection(_connectionString);
-            var sql = $"DELETE FROM {_tableName} WHERE Id = @Id";
+            var sql = $"DELETE FROM {TableName} WHERE Id = @Id";
             int affected = connection.Execute(sql, new { Id = id });
             return affected > 0;
         }
 
         /// <summary>
-        /// Возвращает все сущности
+        /// Возвращает список всех фигурок
         /// </summary>
-        public List<T> ReadAll()
+        public List<Figure> ReadAll()
         {
             using var connection = new SqliteConnection(_connectionString);
-            var sql = $"SELECT * FROM {_tableName}";
-            return connection.Query<T>(sql).ToList();
+            var sql = $"SELECT * FROM {TableName}";
+            return connection.Query<Figure>(sql).ToList();
         }
 
         /// <summary>
-        /// Возвращает сущность по Id или null, если не найдена
+        /// Возвращает фигурку по Id или null, если не найдена
         /// </summary>
-        public T? ReadById(int id)
+        public Figure? ReadById(int id)
         {
             using var connection = new SqliteConnection(_connectionString);
-            var sql = $"SELECT * FROM {_tableName} WHERE Id = @Id";
-            return connection.QuerySingleOrDefault<T>(sql, new { Id = id });
+            var sql = $"SELECT * FROM {TableName} WHERE Id = @Id";
+            return connection.QuerySingleOrDefault<Figure>(sql, new { Id = id });
         }
 
         /// <summary>
-        /// Обновляет сущность. Возвращает true, если обновление успешно
+        /// Обновляет данные фигурки
         /// </summary>
-        public bool Update(T entity)
+        public bool Update(Figure entity)
         {
             using var connection = new SqliteConnection(_connectionString);
-            var sql = $@"UPDATE {_tableName} SET 
+            var sql = $@"UPDATE {TableName} SET 
                          Name = @Name, Character = @Character, Anime = @Anime, Manufacturer = @Manufacturer, 
                          Price = @Price, Scale = @Scale, Height = @Height, ReleaseDate = @ReleaseDate, InStock = @InStock 
                          WHERE Id = @Id";
