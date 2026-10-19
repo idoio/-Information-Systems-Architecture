@@ -8,11 +8,16 @@ namespace AnimeFigures.DataAccessLayer
     /// </summary>
     public class AppDbContext : DbContext
     {
-        public DbSet<Figure> Figures { get; set; }
+        /// <summary>
+        /// Таблица фигурок в базе данных
+        /// </summary>
+        public DbSet<Figure> Figures { get; set; } = null!;
 
+        /// <summary>
+        /// Настраивает подключение к базе данных SQLite
+        /// </summary>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            // Используем локальный файл SQLite для простоты демонстрации
             optionsBuilder.UseSqlite("Data Source=figures.db");
         }
     }

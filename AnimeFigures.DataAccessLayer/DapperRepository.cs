@@ -14,6 +14,10 @@ namespace AnimeFigures.DataAccessLayer
         private readonly string _connectionString;
         private readonly string _tableName;
 
+        /// <summary>
+        /// Конструктор репозитория Dapper
+        /// </summary>
+        /// <param name="connectionString">Строка подключения к базе данных</param>
         public DapperRepository(string connectionString = "Data Source=figures.db")
         {
             _connectionString = connectionString;
