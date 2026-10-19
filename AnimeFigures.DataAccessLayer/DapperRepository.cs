@@ -30,7 +30,6 @@ namespace AnimeFigures.DataAccessLayer
         /// </summary>
         private void InitializeDatabase()
         {
-            // Явно открываем и закрываем соединение ADO.NET
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
@@ -56,7 +55,6 @@ namespace AnimeFigures.DataAccessLayer
                              VALUES (@Name, @Character, @Anime, @Manufacturer, @Price, @Scale, @Height, @ReleaseDate, @InStock);
                              SELECT last_insert_rowid();";
 
-                // Dapper выполняет SQL и возвращает первый столбец первой строки
                 var id = connection.QuerySingle<int>(sql, entity);
                 entity.Id = id;
                 return entity;
@@ -73,7 +71,6 @@ namespace AnimeFigures.DataAccessLayer
                 connection.Open();
                 var sql = $"DELETE FROM {TableName} WHERE Id = @Id";
 
-                // Execute возвращает количество затронутых строк
                 int affectedRows = connection.Execute(sql, new { Id = id });
                 return affectedRows > 0;
             }
@@ -89,7 +86,6 @@ namespace AnimeFigures.DataAccessLayer
                 connection.Open();
                 var sql = $"SELECT * FROM {TableName}";
 
-                // ToList() заставляет Dapper выполнить запрос немедленно
                 return connection.Query<Figure>(sql).ToList();
             }
         }
