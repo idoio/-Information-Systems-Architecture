@@ -1,6 +1,7 @@
 ﻿using AnimeFigures.DataAccessLayer;
 using AnimeFigures.Logic;
 using AnimeFigures.Model;
+using Ninject;
 
 namespace AnimeFigures.ConsoleApp
 {
@@ -9,15 +10,17 @@ namespace AnimeFigures.ConsoleApp
     /// </summary>
     class Program
     {
-        private static readonly AppDbContext _context = new AppDbContext();
-        private static readonly IRepository<Figure> _repository = new EfRepository<Figure>(_context);
+        //private static readonly AppDbContext _context = new AppDbContext();
+        //private static readonly IRepository<Figure> _repository = new EfRepository<Figure>(_context);
         //private static readonly IRepository<Figure> _repository = new DapperFigureRepository();
-        private static readonly FigureLogic _logic = new FigureLogic(_repository);
- 
+        //private static readonly FigureLogic _logic = new FigureLogic(_repository);
+        private static readonly IKernel _kernel = new StandardKernel(new SimpleConfigModule());
+        private static readonly FigureLogic _logic = _kernel.Get<FigureLogic>();
+
 
         static void Main(string[] args)
         {
-            _context.Database.EnsureCreated();
+            //_context.Database.EnsureCreated();
             Console.WriteLine("МАГАЗИН АНИМЕ-ФИГУРОК\n");
             _logic.AddDefaultFigures();
             

@@ -1,29 +1,29 @@
-﻿using AnimeFigures.DataAccessLayer;
-using AnimeFigures.Logic;
+﻿using AnimeFigures.Logic;
 using AnimeFigures.Model;
+using Ninject;
 
 namespace AnimeFigures.WinForms
 {
-    /// <summary>
-    /// Главная форма приложения магазина аниме-фигурок
-    /// </summary>
     public partial class MainForm : Form
     {
         private readonly FigureLogic _logic;
         private BindingSource _bindingSource;
+        private readonly IKernel _kernel; // ← Добавляем поле для контейнера
 
-        /// <summary>
-        /// Конструктор главной формы
-        /// </summary>
         public MainForm()
         {
             InitializeComponent();
-            var context = new AppDbContext();
-            context.Database.EnsureCreated();
-            var repository = new EfRepository<Figure>(context);
-            //var repository = new DapperFigureRepository();
-            _logic = new FigureLogic(repository);
+
+            // 1. Создаем IoC-контейнер с нашим модулем конфигурации
+            _kernel = new StandardKernel(new SimpleConfigModule());
+
+            // 2. Получаем экземпляр FigureLogic через контейнер
+            // Ninject сам создаст репозиторий и внедрит его в конструктор FigureLogic
+            _logic = _kernel.Get<FigureLogic>();
+
+            // 3. Добавляем тестовые данные (если база пустая)
             _logic.AddDefaultFigures();
+
             InitializeDataGridView();
             LoadFigures();
         }
@@ -270,6 +270,11 @@ namespace AnimeFigures.WinForms
             txtInStock.Clear();
             txtScaleFilter.Clear();
             dtpRelease.Value = DateTime.Now;
+        }
+
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
