@@ -17,7 +17,10 @@ namespace AnimeFigures.ConsoleApp
         private static readonly IKernel _kernel = new StandardKernel(new SimpleConfigModule());
         private static readonly FigureLogic _logic = _kernel.Get<FigureLogic>();
 
-
+        /// <summary>
+        /// Точка входа в консольное приложение
+        /// </summary>
+        /// <param name="args">Аргументы командной строки</param>
         static void Main(string[] args)
         {
             //_context.Database.EnsureCreated();

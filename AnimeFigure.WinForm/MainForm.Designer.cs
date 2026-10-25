@@ -8,6 +8,7 @@
         {
             if (disposing && (components != null))
             {
+                _kernel?.Dispose();
                 components.Dispose();
             }
             base.Dispose(disposing);

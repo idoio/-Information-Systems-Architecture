@@ -24,7 +24,7 @@ namespace AnimeFigures.Logic
             {
                 // Сценарий Dapper:
                 // Связываем интерфейс IRepository<Figure> с конкретной реализацией DapperFigureRepository
-                // .InSingletonScope() гарантирует, что объект будет создан только один раз (требование из PDF)
+                // .InSingletonScope() гарантирует, что объект будет создан только один раз
                 Bind<IRepository<Figure>>().To<DapperFigureRepository>().InSingletonScope();
             }
             else

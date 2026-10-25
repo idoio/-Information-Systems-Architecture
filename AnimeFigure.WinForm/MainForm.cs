@@ -8,20 +8,23 @@ namespace AnimeFigures.WinForms
     {
         private readonly FigureLogic _logic;
         private BindingSource _bindingSource;
-        private readonly IKernel _kernel; // ← Добавляем поле для контейнера
+        private readonly IKernel _kernel; // Добавляем поле для контейнера
 
+        /// <summary>
+        /// Конструктор главной формы. Инициализирует IoC-контейнер и зависимости.
+        /// </summary>
         public MainForm()
         {
             InitializeComponent();
 
-            // 1. Создаем IoC-контейнер с нашим модулем конфигурации
+            // Создаем IoC-контейнер с нашим модулем конфигурации
             _kernel = new StandardKernel(new SimpleConfigModule());
 
-            // 2. Получаем экземпляр FigureLogic через контейнер
+            // Получаем экземпляр FigureLogic через контейнер
             // Ninject сам создаст репозиторий и внедрит его в конструктор FigureLogic
             _logic = _kernel.Get<FigureLogic>();
 
-            // 3. Добавляем тестовые данные (если база пустая)
+            // Добавляем тестовые данные (если база пустая)
             _logic.AddDefaultFigures();
 
             InitializeDataGridView();

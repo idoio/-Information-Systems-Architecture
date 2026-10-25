@@ -13,7 +13,11 @@ namespace AnimeFigures.DataAccessLayer
     public class DapperFigureRepository : IRepository<Figure>
     {
         private readonly string _connectionString;
-        private const string TableName = "Figures"; // Явно задаем имя таблицы
+
+        /// <summary>
+        /// Имя таблицы в базе данных
+        /// </summary>
+        private const string TableName = "Figures";
 
         /// <summary>
         /// Конструктор репозитория Dapper
@@ -26,7 +30,7 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Инициализирует таблицу в базе данных (создает, если нет)
+        /// Инициализирует таблицу в базе данных (создает, если её нет)
         /// </summary>
         private void InitializeDatabase()
         {
@@ -44,8 +48,10 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Добавляет фигурку и возвращает её с заполненным Id
+        /// Добавляет фигурку в базу данных
         /// </summary>
+        /// <param name="entity">Фигурка для добавления</param>
+        /// <returns>Добавленная фигурка с заполненным Id</returns>
         public Figure Add(Figure entity)
         {
             using (var connection = new SqliteConnection(_connectionString))
@@ -62,8 +68,10 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Удаляет фигурку по Id. Возвращает true, если удаление успешно
+        /// Удаляет фигурку по её идентификатору
         /// </summary>
+        /// <param name="id">Уникальный идентификатор фигурки</param>
+        /// <returns>True, если удаление успешно; иначе False</returns>
         public bool Delete(int id)
         {
             using (var connection = new SqliteConnection(_connectionString))
@@ -77,8 +85,9 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Возвращает список всех фигурок
+        /// Возвращает список всех фигурок из базы данных
         /// </summary>
+        /// <returns>Список всех фигурок</returns>
         public List<Figure> ReadAll()
         {
             using (var connection = new SqliteConnection(_connectionString))
@@ -91,8 +100,10 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Возвращает фигурку по Id или null, если не найдена
+        /// Возвращает фигурку по её идентификатору
         /// </summary>
+        /// <param name="id">Уникальный идентификатор фигурки</param>
+        /// <returns>Объект фигурки или null, если запись не найдена</returns>
         public Figure? ReadById(int id)
         {
             using (var connection = new SqliteConnection(_connectionString))
@@ -100,14 +111,15 @@ namespace AnimeFigures.DataAccessLayer
                 connection.Open();
                 var sql = $"SELECT * FROM {TableName} WHERE Id = @Id";
 
-                // QuerySingleOrDefault вернет null, если запись не найдена
                 return connection.QuerySingleOrDefault<Figure>(sql, new { Id = id });
             }
         }
 
         /// <summary>
-        /// Обновляет данные фигурки. Возвращает true, если обновление успешно
+        /// Обновляет данные существующей фигурки
         /// </summary>
+        /// <param name="entity">Фигурка с обновленными данными</param>
+        /// <returns>True, если обновление успешно; иначе False</returns>
         public bool Update(Figure entity)
         {
             using (var connection = new SqliteConnection(_connectionString))
