@@ -1,14 +1,18 @@
 ﻿using AnimeFigures.Logic;
 using AnimeFigures.Model;
 using Ninject;
+using System;
+using System.Windows.Forms;
 
 namespace AnimeFigures.WinForms
 {
     public partial class MainForm : Form
     {
-        private readonly FigureLogic _logic;
+        // Разделяем зависимости согласно принципам S и I из SOLID
+        private readonly IFigureCrudService _crudService;
+        private readonly IFigureAnalyticsService _analyticsService;
         private BindingSource _bindingSource;
-        private readonly IKernel _kernel; // ← Добавляем поле для контейнера
+        private readonly IKernel _kernel;
 
         public MainForm()
         {
@@ -17,12 +21,12 @@ namespace AnimeFigures.WinForms
             // 1. Создаем IoC-контейнер с нашим модулем конфигурации
             _kernel = new StandardKernel(new SimpleConfigModule());
 
-            // 2. Получаем экземпляр FigureLogic через контейнер
-            // Ninject сам создаст репозиторий и внедрит его в конструктор FigureLogic
-            _logic = _kernel.Get<FigureLogic>();
+            // 2. Получаем разделенные сервисы через контейнер
+            _crudService = _kernel.Get<IFigureCrudService>();
+            _analyticsService = _kernel.Get<IFigureAnalyticsService>();
 
             // 3. Добавляем тестовые данные (если база пустая)
-            _logic.AddDefaultFigures();
+            _crudService.AddDefaultFigures();
 
             InitializeDataGridView();
             LoadFigures();
@@ -42,7 +46,7 @@ namespace AnimeFigures.WinForms
         /// </summary>
         private void LoadFigures()
         {
-            _bindingSource.DataSource = _logic.GetAllFigures();
+            _bindingSource.DataSource = _crudService.GetAllFigures();
             dataGridView1.Refresh();
         }
 
@@ -81,7 +85,7 @@ namespace AnimeFigures.WinForms
                     return;
                 }
 
-                _logic.CreateFigure(
+                _crudService.CreateFigure(
                     txtName.Text.Trim(),
                     txtCharacter.Text.Trim(),
                     txtAnime.Text.Trim(),
@@ -138,7 +142,7 @@ namespace AnimeFigures.WinForms
                     return;
                 }
 
-                _logic.UpdateFigure(
+                _crudService.UpdateFigure(
                     selected.Id,
                     txtName.Text.Trim(),
                     txtCharacter.Text.Trim(),
@@ -179,7 +183,7 @@ namespace AnimeFigures.WinForms
 
             if (result == DialogResult.Yes)
             {
-                if (_logic.DeleteFigure(selected.Id))
+                if (_crudService.DeleteFigure(selected.Id))
                 {
                     LoadFigures();
                     MessageBox.Show("Фигурка удалена!", "Успех",
@@ -193,7 +197,7 @@ namespace AnimeFigures.WinForms
         /// </summary>
         private void btnGroupByManufacturer_Click(object sender, EventArgs e)
         {
-            var groups = _logic.GroupByManufacturer();
+            var groups = _analyticsService.GroupByManufacturer();
             if (groups.Count == 0)
             {
                 MessageBox.Show("Нет данных для группировки.", "Статистика",
@@ -228,7 +232,7 @@ namespace AnimeFigures.WinForms
 
             try
             {
-                var filtered = _logic.FilterByScale(scale);
+                var filtered = _analyticsService.FilterByScale(scale);
                 if (filtered.Count == 0)
                 {
                     MessageBox.Show($"Фигурки с масштабом '{scale}' не найдены.", "Результат",
@@ -274,7 +278,6 @@ namespace AnimeFigures.WinForms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-
         }
     }
 }
