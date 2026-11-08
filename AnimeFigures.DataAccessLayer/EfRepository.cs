@@ -23,6 +23,8 @@ namespace AnimeFigures.DataAccessLayer
         /// <summary>
         /// Добавляет сущность в БД и возвращает её с заполненным Id
         /// </summary>
+        /// <param name="entity">Сущность для добавления</param>
+        /// <returns>Добавленная сущность с заполненным идентификатором</returns>
         public T Add(T entity)
         {
             _context.Set<T>().Add(entity);
@@ -31,8 +33,10 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Удаляет сущность по Id. Возвращает true, если удаление успешно
+        /// Удаляет сущность по Id
         /// </summary>
+        /// <param name="id">Уникальный идентификатор сущности</param>
+        /// <returns>True, если удаление успешно; иначе False</returns>
         public bool Delete(int id)
         {
             var entity = _context.Set<T>().Find(id);
@@ -45,24 +49,29 @@ namespace AnimeFigures.DataAccessLayer
         }
 
         /// <summary>
-        /// Возвращает все сущности
+        /// Возвращает список всех сущностей
         /// </summary>
+        /// <returns>Список сущностей типа T</returns>
         public List<T> ReadAll()
         {
             return _context.Set<T>().AsNoTracking().ToList();
         }
 
         /// <summary>
-        /// Возвращает сущность по Id или null, если не найдена
+        /// Возвращает сущность по Id
         /// </summary>
+        /// <param name="id">Уникальный идентификатор сущности</param>
+        /// <returns>Объект сущности или null, если не найдена</returns>
         public T? ReadById(int id)
         {
             return _context.Set<T>().AsNoTracking().FirstOrDefault(e => e.Id == id);
         }
 
         /// <summary>
-        /// Обновляет сущность. Возвращает true, если обновление успешно
+        /// Обновляет данные сущности
         /// </summary>
+        /// <param name="entity">Сущность с обновленными данными</param>
+        /// <returns>True, если обновление успешно; иначе False</returns>
         public bool Update(T entity)
         {
             var existing = _context.Set<T>().Find(entity.Id);

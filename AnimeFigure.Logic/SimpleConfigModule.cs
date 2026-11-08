@@ -16,6 +16,12 @@ namespace AnimeFigures.Logic
             // Регистрируем репозиторий как Singleton
             if (UseDapper)
             {
+<<<<<<< HEAD
+=======
+                // Сценарий Dapper:
+                // Связываем интерфейс IRepository<Figure> с конкретной реализацией DapperFigureRepository
+                // .InSingletonScope() гарантирует, что объект будет создан только один раз
+>>>>>>> f3b611da7adab95b2d58216d3ac765017d517620
                 Bind<IRepository<Figure>>().To<DapperFigureRepository>().InSingletonScope();
             }
             else
