@@ -23,11 +23,32 @@ namespace AnimeFigures.Logic
         /// </summary>
         private static readonly string[] AllowedNamedScales = { "nendoroid", "figuarts", "figma", "scale" };
 
+        /// <summary>
+        /// Конструктор сервиса CRUD-операций
+        /// </summary>
+        /// <param name="repository">Репозиторий для работы с БД</param>
         public FigureCrudService(IRepository<Figure> repository)
         {
             _repository = repository;
         }
 
+        /// <summary>
+        /// Создаёт новую фигурку и добавляет её в коллекцию
+        /// </summary>
+        /// <param name="name">Название фигурки</param>
+        /// <param name="character">Имя персонажа</param>
+        /// <param name="anime">Название аниме</param>
+        /// <param name="manufacturer">Производитель</param>
+        /// <param name="price">Цена</param>
+        /// <param name="scale">Масштаб</param>
+        /// <param name="height">Высота в см</param>
+        /// <param name="releaseDate">Дата выхода</param>
+        /// <param name="inStock">Количество на складе</param>
+        /// <returns>Созданный объект Figure</returns>
+        /// <exception cref="ArgumentException">
+        /// Бросается при пустых строковых полях, недопустимом масштабе
+        /// или отрицательных числовых значениях.
+        /// </exception>
         public Figure CreateFigure(string name, string character, string anime,
                                    string manufacturer, decimal price, string scale,
                                    double height, DateTime releaseDate, int inStock)
@@ -50,16 +71,43 @@ namespace AnimeFigures.Logic
             return _repository.Add(figure);
         }
 
+        /// <summary>
+        /// Читает фигурку по её ID
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор фигурки</param>
+        /// <returns>Объект Figure или null, если не найдена</returns>
         public Figure ReadFigure(int id)
         {
             return _repository.ReadById(id);
         }
 
+        /// <summary>
+        /// Получает список всех фигурок
+        /// </summary>
+        /// <returns>Копия списка всех фигурок</returns>
         public List<Figure> GetAllFigures()
         {
             return _repository.ReadAll();
         }
 
+        /// <summary>
+        /// Обновляет данные существующей фигурки
+        /// </summary>
+        /// <param name="id">ID фигурки для обновления</param>
+        /// <param name="name">Новое название</param>
+        /// <param name="character">Новый персонаж</param>
+        /// <param name="anime">Новое аниме</param>
+        /// <param name="manufacturer">Новый производитель</param>
+        /// <param name="price">Новая цена</param>
+        /// <param name="scale">Новый масштаб</param>
+        /// <param name="height">Новая высота</param>
+        /// <param name="releaseDate">Новая дата выхода</param>
+        /// <param name="inStock">Новое количество на складе</param>
+        /// <returns>True, если обновление успешно</returns>
+        /// <exception cref="ArgumentException">
+        /// Бросается при пустых строковых полях, недопустимом масштабе
+        /// или отрицательных числовых значениях.
+        /// </exception>
         public bool UpdateFigure(int id, string name, string character, string anime,
                                  string manufacturer, decimal price, string scale,
                                  double height, DateTime releaseDate, int inStock)
@@ -90,6 +138,11 @@ namespace AnimeFigures.Logic
             return _repository.Update(figure);
         }
 
+        /// <summary>
+        /// Удаляет фигурку по ID
+        /// </summary>
+        /// <param name="id">ID фигурки для удаления</param>
+        /// <returns>True, если удаление успешно</returns>
         public bool DeleteFigure(int id)
         {
             var figure = ReadFigure(id);
@@ -99,6 +152,9 @@ namespace AnimeFigures.Logic
             return _repository.Delete(id);
         }
 
+        /// <summary>
+        /// Добавляет тестовые данные для демонстрации работы приложения
+        /// </summary>
         public void AddDefaultFigures()
         {
             if (_repository.ReadAll().Any()) return;
@@ -115,30 +171,57 @@ namespace AnimeFigures.Logic
 
         #region Валидация
 
+        /// <summary>
+        /// Проверяет, что строка не пустая
+        /// </summary>
+        /// <param name="value">Проверяемая строка</param>
+        /// <param name="fieldName">Название поля для сообщения об ошибке</param>
+        /// <exception cref="ArgumentException">Бросается, если строка пустая</exception>
         private static void ValidateString(string value, string fieldName)
         {
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException($"{fieldName} не может быть пустым");
         }
 
+        /// <summary>
+        /// Проверяет, что цена неотрицательна
+        /// </summary>
+        /// <param name="price">Цена</param>
+        /// <exception cref="ArgumentException">Бросается, если цена отрицательная</exception>
         private static void ValidatePrice(decimal price)
         {
             if (price < 0)
                 throw new ArgumentException("Цена не может быть отрицательной");
         }
 
+        /// <summary>
+        /// Проверяет, что количество на складе неотрицательно
+        /// </summary>
+        /// <param name="inStock">Количество на складе</param>
+        /// <exception cref="ArgumentException">Бросается, если количество отрицательное</exception>
         private static void ValidateInStock(int inStock)
         {
             if (inStock < 0)
                 throw new ArgumentException("Количество на складе не может быть отрицательным");
         }
 
+        /// <summary>
+        /// Проверяет, что высота неотрицательна
+        /// </summary>
+        /// <param name="height">Высота в см</param>
+        /// <exception cref="ArgumentException">Бросается, если высота отрицательная</exception>
         private static void ValidateHeight(double height)
         {
             if (height < 0)
                 throw new ArgumentException("Высота не может быть отрицательной");
         }
 
+        /// <summary>
+        /// Проверяет корректность масштаба без выброса исключения (паттерн TryParse).
+        /// </summary>
+        /// <param name="scale">Проверяемый масштаб</param>
+        /// <param name="errorMessage">Текст ошибки, если масштаб недопустим</param>
+        /// <returns>True, если масштаб допустим; иначе False</returns>
         public static bool TryValidateScale(string scale, out string errorMessage)
         {
             errorMessage = "";
@@ -167,6 +250,11 @@ namespace AnimeFigures.Logic
             return false;
         }
 
+        /// <summary>
+        /// Проверяет, что масштаб задан в допустимом формате
+        /// </summary>
+        /// <param name="scale">Проверяемый масштаб</param>
+        /// <exception cref="ArgumentException">Бросается, если масштаб недопустим</exception>
         private static void ValidateScale(string scale)
         {
             if (!TryValidateScale(scale, out string errorMessage))

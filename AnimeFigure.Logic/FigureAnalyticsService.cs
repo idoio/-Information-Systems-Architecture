@@ -13,15 +13,20 @@ namespace AnimeFigures.Logic
     {
         private readonly IRepository<Figure> _repository;
 
+        /// <summary>
+        /// Конструктор сервиса аналитики
+        /// </summary>
+        /// <param name="repository">Репозиторий для получения данных из БД</param>
         public FigureAnalyticsService(IRepository<Figure> repository)
         {
             _repository = repository;
         }
 
         /// <summary>
-        /// Группирует фигурки по производителю
+        /// Группирует фигурки по производителю.
+        /// Возвращает словарь: ключ — производитель, значение — список фигурок этого производителя.
         /// </summary>
-        /// <returns>Словарь: производитель → список фигурок</returns>
+        /// <returns>Словарь: производитель - список фигурок</returns>
         public Dictionary<string, List<Figure>> GroupByManufacturer()
         {
             return _repository.ReadAll()
@@ -30,14 +35,15 @@ namespace AnimeFigures.Logic
         }
 
         /// <summary>
-        /// Фильтрует фигурки по масштабу
+        /// Фильтрует фигурки по заданному масштабу (регистронезависимо).
+        /// Масштаб нормализуется: ':' - '/'.
         /// </summary>
-        /// <param name="scale">Масштаб для поиска</param>
-        /// <returns>Список фигурок</returns>
+        /// <param name="scale">Масштаб для поиска (например, "1/7", "Nendoroid")</param>
+        /// <returns>Список фигурок указанного масштаба</returns>
         public List<Figure> FilterByScale(string scale)
         {
-            // Валидацию масштаба делает FigureCrudService или сам FigureLogic до вызова этого метода.
-            // Здесь мы просто нормализуем строку и фильтруем.
+            // Валидация масштаба делегирована FigureCrudService или FigureLogic
+            // Здесь мы только нормализуем строку и фильтруем данные
             string normalized = scale.Trim().Replace(':', '/');
 
             return _repository.ReadAll()
