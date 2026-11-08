@@ -13,14 +13,15 @@ namespace AnimeFigures.Logic
     {
         private readonly IRepository<Figure> _repository;
 
-        private static readonly string[] AllowedFractionScales = { "1/4", "1/6", "1/7", "1/8", "1/10" };
-        private static readonly string[] AllowedNamedScales = { "nendoroid", "figuarts", "figma", "scale" };
-
         public FigureAnalyticsService(IRepository<Figure> repository)
         {
             _repository = repository;
         }
 
+        /// <summary>
+        /// Группирует фигурки по производителю
+        /// </summary>
+        /// <returns>Словарь: производитель → список фигурок</returns>
         public Dictionary<string, List<Figure>> GroupByManufacturer()
         {
             return _repository.ReadAll()
@@ -28,22 +29,20 @@ namespace AnimeFigures.Logic
                 .ToDictionary(g => g.Key, g => g.ToList());
         }
 
+        /// <summary>
+        /// Фильтрует фигурки по масштабу
+        /// </summary>
+        /// <param name="scale">Масштаб для поиска</param>
+        /// <returns>Список фигурок</returns>
         public List<Figure> FilterByScale(string scale)
         {
-            ValidateScale(scale);
+            // Валидацию масштаба делает FigureCrudService или сам FigureLogic до вызова этого метода.
+            // Здесь мы просто нормализуем строку и фильтруем.
             string normalized = scale.Trim().Replace(':', '/');
 
             return _repository.ReadAll()
                 .Where(f => f.Scale.Replace(':', '/').Equals(normalized, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-        }
-
-        private static void ValidateScale(string scale)
-        {
-            if (!FigureCrudService.TryValidateScale(scale, out string errorMessage))
-            {
-                throw new ArgumentException(errorMessage);
-            }
         }
     }
 }

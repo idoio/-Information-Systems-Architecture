@@ -6,6 +6,9 @@ using System.Windows.Forms;
 
 namespace AnimeFigures.WinForms
 {
+    /// <summary>
+    /// Главная форма приложения магазина аниме-фигурок
+    /// </summary>
     public partial class MainForm : Form
     {
         // Разделяем зависимости согласно принципам S и I из SOLID
@@ -21,15 +24,15 @@ namespace AnimeFigures.WinForms
         {
             InitializeComponent();
 
-            // Создаем IoC-контейнер с нашим модулем конфигурации
+            // 1. Создаем IoC-контейнер с нашим модулем конфигурации
             _kernel = new StandardKernel(new SimpleConfigModule());
 
-            // 2. Получаем экземпляр FigureLogic через контейнер
-            // Ninject сам создаст репозиторий и внедрит его в конструктор FigureLogic
-            _logic = _kernel.Get<FigureLogic>();
+            // 2. Получаем сервисы через контейнер (вместо старого FigureLogic)
+            _crudService = _kernel.Get<IFigureCrudService>();
+            _analyticsService = _kernel.Get<IFigureAnalyticsService>();
 
             // 3. Добавляем тестовые данные (если база пустая)
-            _logic.AddDefaultFigures();
+            _crudService.AddDefaultFigures();
 
             InitializeDataGridView();
             LoadFigures();
@@ -278,9 +281,9 @@ namespace AnimeFigures.WinForms
             txtScaleFilter.Clear();
             dtpRelease.Value = DateTime.Now;
         }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
+
         }
     }
 }
