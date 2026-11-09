@@ -7,7 +7,7 @@ namespace AnimeFigures.Logic
     /// <summary>
     /// Класс бизнес-логики (фасад), который связывает сервисы CRUD и Аналитики
     /// </summary>
-    public class FigureLogic
+    public class FigureLogic : IFigureLogic
     {
         private readonly IFigureCrudService _crudService;
         private readonly IFigureAnalyticsService _analyticsService;
