@@ -11,9 +11,8 @@ namespace AnimeFigures.WinForms
     /// </summary>
     public partial class MainForm : Form
     {
-        // Разделяем зависимости согласно принципам S и I из SOLID
-        private readonly IFigureCrudService _crudService;
-        private readonly IFigureAnalyticsService _analyticsService;
+        // Теперь мы используем единый фасад, как требует методичка
+        private readonly FigureLogic _logic;
         private BindingSource _bindingSource;
         private readonly IKernel _kernel;
 
@@ -24,15 +23,14 @@ namespace AnimeFigures.WinForms
         {
             InitializeComponent();
 
-            // 1. Создаем IoC-контейнер с нашим модулем конфигурации
+            // 1. Создаем IoC-контейнер
             _kernel = new StandardKernel(new SimpleConfigModule());
 
-            // 2. Получаем сервисы через контейнер (вместо старого FigureLogic)
-            _crudService = _kernel.Get<IFigureCrudService>();
-            _analyticsService = _kernel.Get<IFigureAnalyticsService>();
+            // 2. Получаем ЕДИНЫЙ класс бизнес-логики (Фасад) через контейнер
+            _logic = _kernel.Get<FigureLogic>();
 
             // 3. Добавляем тестовые данные (если база пустая)
-            _crudService.AddDefaultFigures();
+            _logic.AddDefaultFigures();
 
             InitializeDataGridView();
             LoadFigures();
@@ -52,7 +50,7 @@ namespace AnimeFigures.WinForms
         /// </summary>
         private void LoadFigures()
         {
-            _bindingSource.DataSource = _crudService.GetAllFigures();
+            _bindingSource.DataSource = _logic.GetAllFigures();
             dataGridView1.Refresh();
         }
 
@@ -91,7 +89,7 @@ namespace AnimeFigures.WinForms
                     return;
                 }
 
-                _crudService.CreateFigure(
+                _logic.CreateFigure(
                     txtName.Text.Trim(),
                     txtCharacter.Text.Trim(),
                     txtAnime.Text.Trim(),
@@ -148,7 +146,7 @@ namespace AnimeFigures.WinForms
                     return;
                 }
 
-                _crudService.UpdateFigure(
+                _logic.UpdateFigure(
                     selected.Id,
                     txtName.Text.Trim(),
                     txtCharacter.Text.Trim(),
@@ -189,7 +187,7 @@ namespace AnimeFigures.WinForms
 
             if (result == DialogResult.Yes)
             {
-                if (_crudService.DeleteFigure(selected.Id))
+                if (_logic.DeleteFigure(selected.Id))
                 {
                     LoadFigures();
                     MessageBox.Show("Фигурка удалена!", "Успех",
@@ -203,7 +201,7 @@ namespace AnimeFigures.WinForms
         /// </summary>
         private void btnGroupByManufacturer_Click(object sender, EventArgs e)
         {
-            var groups = _analyticsService.GroupByManufacturer();
+            var groups = _logic.GroupByManufacturer();
             if (groups.Count == 0)
             {
                 MessageBox.Show("Нет данных для группировки.", "Статистика",
@@ -238,7 +236,7 @@ namespace AnimeFigures.WinForms
 
             try
             {
-                var filtered = _analyticsService.FilterByScale(scale);
+                var filtered = _logic.FilterByScale(scale);
                 if (filtered.Count == 0)
                 {
                     MessageBox.Show($"Фигурки с масштабом '{scale}' не найдены.", "Результат",

@@ -1,5 +1,4 @@
-﻿using AnimeFigures.DataAccessLayer;
-using AnimeFigures.Logic;
+﻿using AnimeFigures.Logic;
 using AnimeFigures.Model;
 using Ninject;
 
@@ -10,15 +9,8 @@ namespace AnimeFigures.ConsoleApp
     /// </summary>
     class Program
     {
-        //private static readonly AppDbContext _context = new AppDbContext();
-        //private static readonly IRepository<Figure> _repository = new EfRepository<Figure>(_context);
-        //private static readonly IRepository<Figure> _repository = new DapperFigureRepository();
-        //private static readonly FigureLogic _logic = new FigureLogic(_repository);
-
-        // Новые поля для разделенных сервисов (SOLID S и I)
         private static readonly IKernel _kernel = new StandardKernel(new SimpleConfigModule());
-        private static readonly IFigureCrudService _crudService = _kernel.Get<IFigureCrudService>();
-        private static readonly IFigureAnalyticsService _analyticsService = _kernel.Get<IFigureAnalyticsService>();
+        private static readonly FigureLogic _logic = _kernel.Get<FigureLogic>();
 
         /// <summary>
         /// Точка входа в консольное приложение
@@ -26,11 +18,10 @@ namespace AnimeFigures.ConsoleApp
         /// <param name="args">Аргументы командной строки</param>
         static void Main(string[] args)
         {
-            //_context.Database.EnsureCreated();
             Console.WriteLine("МАГАЗИН АНИМЕ-ФИГУРОК\n");
 
-            // Вызываем через CRUD-сервис
-            _crudService.AddDefaultFigures();
+            
+            _logic.AddDefaultFigures();
 
             bool exit = false;
             while (!exit)
@@ -166,10 +157,9 @@ namespace AnimeFigures.ConsoleApp
                 Console.Write(prompt);
                 string input = Console.ReadLine();
 
-                // Вызываем валидацию через CRUD-сервис
-                if (FigureCrudService.TryValidateScale(input, out string errorMessage))
+                // Вызываем валидацию через фасад (FigureLogic), который проксирует вызов
+                if (FigureLogic.TryValidateScale(input, out string errorMessage))
                 {
-                    // Возвращаем нормализованное значение (с '/' вместо ':')
                     return input.Trim().Replace(':', '/');
                 }
 
@@ -212,8 +202,8 @@ namespace AnimeFigures.ConsoleApp
             DateTime releaseDate = ReadDate("Дата выхода");
             int inStock = ReadInt("Количество на складе: ", 0);
 
-            var figure = _crudService.CreateFigure(name, character, anime, manufacturer,
-                                                   price, scale, height, releaseDate, inStock);
+            var figure = _logic.CreateFigure(name, character, anime, manufacturer,
+                                             price, scale, height, releaseDate, inStock);
             Console.WriteLine($"Фигурка добавлена с ID: {figure.Id}");
             WaitForUser();
         }
@@ -225,7 +215,7 @@ namespace AnimeFigures.ConsoleApp
         {
             Console.Clear();
             int id = ReadInt("Введите ID: ", 1);
-            var figure = _crudService.ReadFigure(id);
+            var figure = _logic.ReadFigure(id);
             Console.WriteLine(figure != null ? figure.ToString() : "Не найдена");
             WaitForUser();
         }
@@ -236,7 +226,7 @@ namespace AnimeFigures.ConsoleApp
         static void UpdateFigure()
         {
             Console.Clear();
-            var figures = _crudService.GetAllFigures();
+            var figures = _logic.GetAllFigures();
             if (figures.Count == 0)
             {
                 Console.WriteLine("Список фигурок пуст. Нечего обновлять.");
@@ -255,7 +245,7 @@ namespace AnimeFigures.ConsoleApp
                 return;
             }
 
-            var existing = _crudService.ReadFigure(id);
+            var existing = _logic.ReadFigure(id);
             if (existing == null)
             {
                 Console.WriteLine("Фигурка не найдена.");
@@ -273,8 +263,8 @@ namespace AnimeFigures.ConsoleApp
             DateTime releaseDate = ReadDate("Новая дата выхода");
             int inStock = ReadInt("Новое количество: ", 0);
 
-            if (_crudService.UpdateFigure(id, name, character, anime, manufacturer,
-                                          price, scale, height, releaseDate, inStock))
+            if (_logic.UpdateFigure(id, name, character, anime, manufacturer,
+                                    price, scale, height, releaseDate, inStock))
                 Console.WriteLine("Обновлено успешно");
             else
                 Console.WriteLine("Фигурка не найдена");
@@ -287,7 +277,7 @@ namespace AnimeFigures.ConsoleApp
         static void DeleteFigure()
         {
             Console.Clear();
-            var figures = _crudService.GetAllFigures();
+            var figures = _logic.GetAllFigures();
             if (figures.Count == 0)
             {
                 Console.WriteLine("Список фигурок пуст. Нечего удалять.");
@@ -307,7 +297,7 @@ namespace AnimeFigures.ConsoleApp
                 return;
             }
 
-            if (_crudService.DeleteFigure(id))
+            if (_logic.DeleteFigure(id))
                 Console.WriteLine("Удалено успешно");
             else
                 Console.WriteLine("Фигурка не найдена");
@@ -320,7 +310,7 @@ namespace AnimeFigures.ConsoleApp
         static void ShowAll()
         {
             Console.Clear();
-            var figures = _crudService.GetAllFigures();
+            var figures = _logic.GetAllFigures();
             if (figures.Count == 0)
             {
                 Console.WriteLine("Список пуст.");
@@ -341,7 +331,7 @@ namespace AnimeFigures.ConsoleApp
             Console.Clear();
 
             Console.WriteLine("\nГруппировка по производителям:");
-            var groups = _analyticsService.GroupByManufacturer();
+            var groups = _logic.GroupByManufacturer();
             if (groups.Count == 0)
             {
                 Console.WriteLine("Нет данных для группировки.");
@@ -367,7 +357,7 @@ namespace AnimeFigures.ConsoleApp
         {
             Console.Clear();
             string scale = ReadScale("Введите масштаб: ");
-            var filtered = _analyticsService.FilterByScale(scale);
+            var filtered = _logic.FilterByScale(scale);
             Console.WriteLine($"\nФигурки масштаба '{scale}':");
             if (filtered.Count == 0)
             {
