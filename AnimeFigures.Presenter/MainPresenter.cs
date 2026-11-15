@@ -23,7 +23,7 @@ namespace AnimeFigures.Presenter
             _view = view;
             _logic = logic;
 
-            // Подписка на события View (View → Presenter)
+            // Подписка на события View (View - Presenter)
             _view.CreateRequested += OnCreateRequested;
             _view.UpdateRequested += OnUpdateRequested;
             _view.DeleteRequested += OnDeleteRequested;
@@ -32,7 +32,7 @@ namespace AnimeFigures.Presenter
             _view.FilterByScaleRequested += OnFilterByScaleRequested;
             _view.SelectionChanged += OnSelectionChanged;
 
-            // Подписка на событие Model (Model → Presenter)
+            // Подписка на событие Model (Model - Presenter)
             _logic.FiguresChanged += OnModelFiguresChanged;
 
             // Начальная загрузка: тестовые данные + первичная отрисовка
@@ -40,7 +40,7 @@ namespace AnimeFigures.Presenter
             RefreshFigures();
         }
 
-        // ===== Обработчики событий View =====
+        // Обработчики событий View
 
         /// <summary>
         /// Обрабатывает запрос на создание фигурки
@@ -162,7 +162,7 @@ namespace AnimeFigures.Presenter
                 _view.FillFields(FigureMapper.ToDto(figure));
         }
 
-        // ===== Обработчик события Model =====
+        // Обработчик события Model
 
         /// <summary>
         /// Реагирует на изменение данных в Model: перерисовывает View.

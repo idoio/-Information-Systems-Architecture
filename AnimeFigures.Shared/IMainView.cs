@@ -6,7 +6,7 @@
     /// </summary>
     public interface IMainView
     {
-        // ===== События: View → Presenter =====
+        // События: View - Presenter
         // Форма только сообщает "пользователь что-то сделал", не выполняя логику
 
         /// <summary>Пользователь запросил добавление фигурки (данные формы в FigureDto)</summary>
@@ -30,7 +30,7 @@
         /// <summary>Пользователь выбрал фигурку в таблице (Id или null)</summary>
         event Action<int?> SelectionChanged;
 
-        // ===== Методы: Presenter → View =====
+        // Методы: Presenter - View
         // Presenter вызывает их для отрисовки данных
 
         /// <summary>Отображает список фигурок в таблице</summary>

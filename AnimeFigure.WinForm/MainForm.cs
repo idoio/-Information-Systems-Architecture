@@ -1,5 +1,8 @@
 ﻿using AnimeFigures.Presenter;
 using AnimeFigures.Shared;
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace AnimeFigures.WinForms
 {
@@ -13,25 +16,31 @@ namespace AnimeFigures.WinForms
         private BindingSource _bindingSource;
         private MainPresenter _presenter;
 
-        // ===== События View → Presenter =====
+        //События View - Presenter
 
         /// <summary>Пользователь запросил добавление фигурки</summary>
         public event Action<FigureDto> CreateRequested;
-        /// <summary>Пользователь запросил обновление фигурки</summary>
+
+        /// <summary>Пользователь запросил обновление фигурки с указанным Id</summary>
         public event Action<int, FigureDto> UpdateRequested;
-        /// <summary>Пользователь запросил удаление фигурки</summary>
+
+        /// <summary>Пользователь запросил удаление фигурки с указанным Id</summary>
         public event Action<int> DeleteRequested;
+
         /// <summary>Пользователь запросил показ всех фигурок</summary>
         public event Action ShowAllRequested;
+
         /// <summary>Пользователь запросил группировку по производителям</summary>
         public event Action GroupByManufacturerRequested;
+
         /// <summary>Пользователь запросил фильтрацию по масштабу</summary>
         public event Action<string> FilterByScaleRequested;
-        /// <summary>Пользователь выбрал фигурку в таблице</summary>
+
+        /// <summary>Пользователь выбрал фигурку в таблице (Id или null)</summary>
         public event Action<int?> SelectionChanged;
 
         /// <summary>
-        /// Конструктор главной формы
+        /// Конструктор главной формы. Инициализирует IoC-контейнер и зависимости.
         /// </summary>
         public MainForm()
         {
@@ -68,6 +77,7 @@ namespace AnimeFigures.WinForms
         /// Считывает поля ввода в DTO. Возвращает null, если числовые поля заполнены неверно.
         /// Проверяет только формат ввода (UI-задача), бизнес-валидацию делает Presenter.
         /// </summary>
+        /// <returns>Объект FigureDto с данными из полей ввода, или null при ошибке парсинга чисел</returns>
         private FigureDto ReadFigureFromFields()
         {
             if (!decimal.TryParse(txtPrice.Text, out decimal price) || price < 0)
@@ -106,6 +116,8 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Обработчик выбора строки в таблице: уведомляет Presenter
         /// </summary>
+        /// <param name="sender">Источник события (DataGridView)</param>
+        /// <param name="e">Аргументы события</param>
         private void DataGridView1_SelectionChanged(object sender, EventArgs e)
         {
             var selected = GetSelectedFigure();
@@ -115,6 +127,8 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Обработчик кнопки "Добавить": создаёт новую фигурку
         /// </summary>
+        /// <param name="sender">Источник события (кнопка)</param>
+        /// <param name="e">Аргументы события</param>
         private void btnCreate_Click(object sender, EventArgs e)
         {
             var dto = ReadFigureFromFields();
@@ -125,6 +139,8 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Обработчик кнопки "Обновить": обновляет выбранную фигурку
         /// </summary>
+        /// <param name="sender">Источник события (кнопка)</param>
+        /// <param name="e">Аргументы события</param>
         private void btnUpdate_Click(object sender, EventArgs e)
         {
             var selected = GetSelectedFigure();
@@ -143,6 +159,8 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Обработчик кнопки "Удалить": удаляет выбранную фигурку
         /// </summary>
+        /// <param name="sender">Источник события (кнопка)</param>
+        /// <param name="e">Аргументы события</param>
         private void btnDelete_Click(object sender, EventArgs e)
         {
             var selected = GetSelectedFigure();
@@ -163,6 +181,8 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Обработчик кнопки "По производителям": показывает статистику
         /// </summary>
+        /// <param name="sender">Источник события (кнопка)</param>
+        /// <param name="e">Аргументы события</param>
         private void btnGroupByManufacturer_Click(object sender, EventArgs e)
         {
             GroupByManufacturerRequested?.Invoke();
@@ -171,6 +191,8 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Обработчик кнопки "Фильтровать": фильтрует фигурки по масштабу
         /// </summary>
+        /// <param name="sender">Источник события (кнопка)</param>
+        /// <param name="e">Аргументы события</param>
         private void btnFilterByScale_Click(object sender, EventArgs e)
         {
             string scale = txtScaleFilter.Text.Trim();
@@ -187,17 +209,20 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Обработчик кнопки "Показать все": сбрасывает фильтр и показывает все фигурки
         /// </summary>
+        /// <param name="sender">Источник события (кнопка)</param>
+        /// <param name="e">Аргументы события</param>
         private void btnShowAll_Click(object sender, EventArgs e)
         {
             txtScaleFilter.Clear();
             ShowAllRequested?.Invoke();
         }
 
-        // ===== Реализация IMainView (Presenter → View) =====
+        // Реализация IMainView (Presenter - View)
 
         /// <summary>
         /// Отображает список фигурок в таблице
         /// </summary>
+        /// <param name="figures">Список DTO-объектов для отображения</param>
         public void ShowFigures(List<FigureDto> figures)
         {
             _bindingSource.DataSource = figures;
@@ -207,6 +232,9 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Отображает сообщение пользователю
         /// </summary>
+        /// <param name="message">Текст сообщения</param>
+        /// <param name="title">Заголовок окна сообщения</param>
+        /// <param name="isError">Флаг ошибки (влияет на иконку окна: Error или Information)</param>
         public void ShowMessage(string message, string title, bool isError = false)
         {
             MessageBox.Show(message, title, MessageBoxButtons.OK,
@@ -216,6 +244,7 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Отображает результат группировки по производителям
         /// </summary>
+        /// <param name="groups">Словарь, где ключ — производитель, а значение — список его фигурок (DTO)</param>
         public void ShowGroups(Dictionary<string, List<FigureDto>> groups)
         {
             string message = "Группировка по производителям:\n\n";
@@ -233,6 +262,7 @@ namespace AnimeFigures.WinForms
         /// <summary>
         /// Заполняет поля ввода данными выбранной фигурки
         /// </summary>
+        /// <param name="figure">DTO-объект с данными для заполнения полей</param>
         public void FillFields(FigureDto figure)
         {
             txtName.Text = figure.Name;

@@ -12,6 +12,8 @@ namespace AnimeFigures.Presenter
         /// <summary>
         /// Преобразует доменную фигурку в DTO
         /// </summary>
+        /// <param name="figure">Доменная модель фигурки</param>
+        /// <returns>Объект FigureDto с данными для отображения</returns>
         public static FigureDto ToDto(Figure figure)
         {
             return new FigureDto
@@ -32,6 +34,8 @@ namespace AnimeFigures.Presenter
         /// <summary>
         /// Преобразует список доменных фигурок в список DTO
         /// </summary>
+        /// <param name="figures">Коллекция доменных моделей фигурок</param>
+        /// <returns>Список объектов FigureDto для отображения</returns>
         public static List<FigureDto> ToDtoList(IEnumerable<Figure> figures)
         {
             return figures.Select(ToDto).ToList();

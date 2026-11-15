@@ -25,7 +25,7 @@ namespace AnimeFigures.Presenter
             // Регистрируем конкретный экземпляр формы как реализацию IMainView
             _kernel.Bind<IMainView>().ToConstant(view);
 
-            // Ninject сам соберёт граф: Repository → Services → FigureLogic → Presenter
+            // Ninject сам соберёт граф: Repository - Services - FigureLogic - Presenter
             return _kernel.Get<MainPresenter>();
         }
 
