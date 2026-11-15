@@ -77,5 +77,11 @@ namespace AnimeFigures.Logic
         /// </summary>
         void AddDefaultFigures();
 
+        /// <summary>
+        /// Событие: данные о фигурках изменились (создание, обновление, удаление).
+        /// Подписчики (Presenter через фасад) получают уведомление для перерисовки View.
+        /// </summary>
+        event Action FiguresChanged;
+
     }
 }

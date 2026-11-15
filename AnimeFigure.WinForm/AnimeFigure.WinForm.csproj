@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AnimeFigure.Logic\AnimeFigure.Logic.csproj" />
+    <ProjectReference Include="..\AnimeFigures.Presenter\AnimeFigures.Presenter.csproj" />
+    <ProjectReference Include="..\AnimeFigures.Shared\AnimeFigures.Shared.csproj" />
   </ItemGroup>
 
 </Project>

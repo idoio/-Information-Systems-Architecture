@@ -68,7 +68,9 @@ namespace AnimeFigures.Logic
             var figure = new Figure(newId, name, character, anime,
                                     manufacturer, price, scale, height,
                                     releaseDate, inStock);
-            return _repository.Add(figure);
+            var added = _repository.Add(figure);
+            OnFiguresChanged();
+            return added;
         }
 
         /// <summary>
@@ -135,7 +137,10 @@ namespace AnimeFigures.Logic
             figure.ReleaseDate = releaseDate;
             figure.InStock = inStock;
 
-            return _repository.Update(figure);
+            bool result = _repository.Update(figure);
+            if (result)
+                OnFiguresChanged();
+            return result;
         }
 
         /// <summary>
@@ -149,7 +154,23 @@ namespace AnimeFigures.Logic
             if (figure == null)
                 return false;
 
-            return _repository.Delete(id);
+            bool result = _repository.Delete(id);
+            if (result)
+                OnFiguresChanged();
+            return result;
+        }
+
+        /// <summary>
+        /// Событие об изменении данных. Presenter слушает его и обновляет View.
+        /// </summary>
+        public event Action FiguresChanged;
+
+        /// <summary>
+        /// Вызывает событие FiguresChanged, уведомляя подписчиков об изменении данных
+        /// </summary>
+        private void OnFiguresChanged()
+        {
+            FiguresChanged?.Invoke();
         }
 
         /// <summary>
@@ -167,6 +188,7 @@ namespace AnimeFigures.Logic
             CreateFigure("Гоку Супер Сайян", "Гоку", "Жемчуг дракона", "Bandai", 12000m, "1/7", 20.0, new DateTime(2023, 3, 10), 8);
             CreateFigure("Незуко Камадо", "Незуко", "Истребитель демонов", "Good Smile Company", 9000m, "Nendoroid", 11.0, new DateTime(2023, 9, 5), 15);
             CreateFigure("Роронао Зоро", "Зоро", "Ван Пис", "MegaHouse", 18000m, "1/7", 23.0, new DateTime(2023, 7, 20), 4);
+            OnFiguresChanged();
         }
 
         #region Валидация

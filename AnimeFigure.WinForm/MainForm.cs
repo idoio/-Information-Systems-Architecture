@@ -1,39 +1,49 @@
-﻿using AnimeFigures.Logic;
-using AnimeFigures.Model;
-using Ninject;
-using System;
-using System.Windows.Forms;
+﻿using AnimeFigures.Presenter;
+using AnimeFigures.Shared;
 
 namespace AnimeFigures.WinForms
 {
     /// <summary>
-    /// Главная форма приложения магазина аниме-фигурок
+    /// Главная форма приложения магазина аниме-фигурок.
+    /// Выступает в роли View (MVP): только отрисовывает данные и генерирует события.
+    /// Вся бизнес-логика вынесена в MainPresenter.
     /// </summary>
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IMainView
     {
-        // Теперь мы используем единый фасад, как требует методичка
-        private readonly FigureLogic _logic;
         private BindingSource _bindingSource;
-        private readonly IKernel _kernel;
+        private MainPresenter _presenter;
+
+        // ===== События View → Presenter =====
+
+        /// <summary>Пользователь запросил добавление фигурки</summary>
+        public event Action<FigureDto> CreateRequested;
+        /// <summary>Пользователь запросил обновление фигурки</summary>
+        public event Action<int, FigureDto> UpdateRequested;
+        /// <summary>Пользователь запросил удаление фигурки</summary>
+        public event Action<int> DeleteRequested;
+        /// <summary>Пользователь запросил показ всех фигурок</summary>
+        public event Action ShowAllRequested;
+        /// <summary>Пользователь запросил группировку по производителям</summary>
+        public event Action GroupByManufacturerRequested;
+        /// <summary>Пользователь запросил фильтрацию по масштабу</summary>
+        public event Action<string> FilterByScaleRequested;
+        /// <summary>Пользователь выбрал фигурку в таблице</summary>
+        public event Action<int?> SelectionChanged;
 
         /// <summary>
-        /// Конструктор главной формы. Инициализирует IoC-контейнер и зависимости.
+        /// Конструктор главной формы
         /// </summary>
         public MainForm()
         {
             InitializeComponent();
-
-            // 1. Создаем IoC-контейнер
-            _kernel = new StandardKernel(new SimpleConfigModule());
-
-            // 2. Получаем ЕДИНЫЙ класс бизнес-логики (Фасад) через контейнер
-            _logic = _kernel.Get<FigureLogic>();
-
-            // 3. Добавляем тестовые данные (если база пустая)
-            _logic.AddDefaultFigures();
-
             InitializeDataGridView();
-            LoadFigures();
+
+            // Подписываемся на выбор строки в таблице
+            dataGridView1.SelectionChanged += DataGridView1_SelectionChanged;
+
+            // Точка сборки создаёт Presenter и внедряет в него эту форму как IMainView.
+            // Presenter сам загрузит тестовые данные и вызовет ShowFigures().
+            _presenter = CompositionRoot.CreateMainPresenter(this);
         }
 
         /// <summary>
@@ -46,21 +56,60 @@ namespace AnimeFigures.WinForms
         }
 
         /// <summary>
-        /// Загружает все фигурки в таблицу
+        /// Возвращает выбранную фигурку или null, если ничего не выбрано
         /// </summary>
-        private void LoadFigures()
+        /// <returns>Выбранная фигурка (DTO) или null</returns>
+        private FigureDto GetSelectedFigure()
         {
-            _bindingSource.DataSource = _logic.GetAllFigures();
-            dataGridView1.Refresh();
+            return _bindingSource.Current as FigureDto;
         }
 
         /// <summary>
-        /// Возвращает выбранную фигурку или null, если ничего не выбрано
+        /// Считывает поля ввода в DTO. Возвращает null, если числовые поля заполнены неверно.
+        /// Проверяет только формат ввода (UI-задача), бизнес-валидацию делает Presenter.
         /// </summary>
-        /// <returns>Выбранная фигурка или null</returns>
-        private Figure GetSelectedFigure()
+        private FigureDto ReadFigureFromFields()
         {
-            return _bindingSource.Current as Figure;
+            if (!decimal.TryParse(txtPrice.Text, out decimal price) || price < 0)
+            {
+                MessageBox.Show("Цена должна быть неотрицательным числом!", "Ошибка ввода",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return null;
+            }
+            if (!double.TryParse(txtHeight.Text, out double height) || height < 0)
+            {
+                MessageBox.Show("Высота должна быть неотрицательным числом!", "Ошибка ввода",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return null;
+            }
+            if (!int.TryParse(txtInStock.Text, out int inStock) || inStock < 0)
+            {
+                MessageBox.Show("Количество должно быть неотрицательным целым числом!", "Ошибка ввода",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return null;
+            }
+
+            return new FigureDto
+            {
+                Name = txtName.Text.Trim(),
+                Character = txtCharacter.Text.Trim(),
+                Anime = txtAnime.Text.Trim(),
+                Manufacturer = txtManufacturer.Text.Trim(),
+                Price = price,
+                Scale = txtScale.Text.Trim(),
+                Height = height,
+                ReleaseDate = dtpRelease.Value,
+                InStock = inStock
+            };
+        }
+
+        /// <summary>
+        /// Обработчик выбора строки в таблице: уведомляет Presenter
+        /// </summary>
+        private void DataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            var selected = GetSelectedFigure();
+            SelectionChanged?.Invoke(selected?.Id);
         }
 
         /// <summary>
@@ -68,48 +117,9 @@ namespace AnimeFigures.WinForms
         /// </summary>
         private void btnCreate_Click(object sender, EventArgs e)
         {
-            try
-            {
-                if (!decimal.TryParse(txtPrice.Text, out decimal price) || price < 0)
-                {
-                    MessageBox.Show("Цена должна быть неотрицательным числом!", "Ошибка ввода",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                if (!double.TryParse(txtHeight.Text, out double height) || height < 0)
-                {
-                    MessageBox.Show("Высота должна быть неотрицательным числом!", "Ошибка ввода",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                if (!int.TryParse(txtInStock.Text, out int inStock) || inStock < 0)
-                {
-                    MessageBox.Show("Количество должно быть неотрицательным целым числом!", "Ошибка ввода",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                _logic.CreateFigure(
-                    txtName.Text.Trim(),
-                    txtCharacter.Text.Trim(),
-                    txtAnime.Text.Trim(),
-                    txtManufacturer.Text.Trim(),
-                    price,
-                    txtScale.Text.Trim(),
-                    height,
-                    dtpRelease.Value,
-                    inStock
-                );
-                LoadFigures();
-                ClearFields();
-                MessageBox.Show("Фигурка добавлена!", "Успех",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            var dto = ReadFigureFromFields();
+            if (dto != null)
+                CreateRequested?.Invoke(dto);
         }
 
         /// <summary>
@@ -125,48 +135,9 @@ namespace AnimeFigures.WinForms
                 return;
             }
 
-            try
-            {
-                if (!decimal.TryParse(txtPrice.Text, out decimal price) || price < 0)
-                {
-                    MessageBox.Show("Цена должна быть неотрицательным числом!", "Ошибка ввода",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                if (!double.TryParse(txtHeight.Text, out double height) || height < 0)
-                {
-                    MessageBox.Show("Высота должна быть неотрицательным числом!", "Ошибка ввода",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                if (!int.TryParse(txtInStock.Text, out int inStock) || inStock < 0)
-                {
-                    MessageBox.Show("Количество должно быть неотрицательным целым числом!", "Ошибка ввода",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                _logic.UpdateFigure(
-                    selected.Id,
-                    txtName.Text.Trim(),
-                    txtCharacter.Text.Trim(),
-                    txtAnime.Text.Trim(),
-                    txtManufacturer.Text.Trim(),
-                    price,
-                    txtScale.Text.Trim(),
-                    height,
-                    dtpRelease.Value,
-                    inStock
-                );
-                LoadFigures();
-                MessageBox.Show("Данные обновлены!", "Успех",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            var dto = ReadFigureFromFields();
+            if (dto != null)
+                UpdateRequested?.Invoke(selected.Id, dto);
         }
 
         /// <summary>
@@ -186,14 +157,7 @@ namespace AnimeFigures.WinForms
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (result == DialogResult.Yes)
-            {
-                if (_logic.DeleteFigure(selected.Id))
-                {
-                    LoadFigures();
-                    MessageBox.Show("Фигурка удалена!", "Успех",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
+                DeleteRequested?.Invoke(selected.Id);
         }
 
         /// <summary>
@@ -201,24 +165,7 @@ namespace AnimeFigures.WinForms
         /// </summary>
         private void btnGroupByManufacturer_Click(object sender, EventArgs e)
         {
-            var groups = _logic.GroupByManufacturer();
-            if (groups.Count == 0)
-            {
-                MessageBox.Show("Нет данных для группировки.", "Статистика",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            string message = "Группировка по производителям:\n\n";
-            foreach (var group in groups)
-            {
-                message += $"{group.Key} ({group.Value.Count} шт.):\n";
-                foreach (var figure in group.Value)
-                    message += $"   • {figure.Name} — {figure.Price} р\n";
-                message += "\n";
-            }
-            MessageBox.Show(message, "Статистика",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            GroupByManufacturerRequested?.Invoke();
         }
 
         /// <summary>
@@ -234,24 +181,7 @@ namespace AnimeFigures.WinForms
                 return;
             }
 
-            try
-            {
-                var filtered = _logic.FilterByScale(scale);
-                if (filtered.Count == 0)
-                {
-                    MessageBox.Show($"Фигурки с масштабом '{scale}' не найдены.", "Результат",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
-
-                _bindingSource.DataSource = filtered;
-                dataGridView1.Refresh();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            FilterByScaleRequested?.Invoke(scale);
         }
 
         /// <summary>
@@ -260,13 +190,66 @@ namespace AnimeFigures.WinForms
         private void btnShowAll_Click(object sender, EventArgs e)
         {
             txtScaleFilter.Clear();
-            LoadFigures();
+            ShowAllRequested?.Invoke();
+        }
+
+        // ===== Реализация IMainView (Presenter → View) =====
+
+        /// <summary>
+        /// Отображает список фигурок в таблице
+        /// </summary>
+        public void ShowFigures(List<FigureDto> figures)
+        {
+            _bindingSource.DataSource = figures;
+            dataGridView1.Refresh();
+        }
+
+        /// <summary>
+        /// Отображает сообщение пользователю
+        /// </summary>
+        public void ShowMessage(string message, string title, bool isError = false)
+        {
+            MessageBox.Show(message, title, MessageBoxButtons.OK,
+                isError ? MessageBoxIcon.Error : MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Отображает результат группировки по производителям
+        /// </summary>
+        public void ShowGroups(Dictionary<string, List<FigureDto>> groups)
+        {
+            string message = "Группировка по производителям:\n\n";
+            foreach (var group in groups)
+            {
+                message += $"{group.Key} ({group.Value.Count} шт.):\n";
+                foreach (var figure in group.Value)
+                    message += $"   • {figure.Name} — {figure.Price} р\n";
+                message += "\n";
+            }
+            MessageBox.Show(message, "Статистика",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Заполняет поля ввода данными выбранной фигурки
+        /// </summary>
+        public void FillFields(FigureDto figure)
+        {
+            txtName.Text = figure.Name;
+            txtCharacter.Text = figure.Character;
+            txtAnime.Text = figure.Anime;
+            txtManufacturer.Text = figure.Manufacturer;
+            txtPrice.Text = figure.Price.ToString();
+            txtScale.Text = figure.Scale;
+            txtHeight.Text = figure.Height.ToString();
+            txtInStock.Text = figure.InStock.ToString();
+            dtpRelease.Value = figure.ReleaseDate;
         }
 
         /// <summary>
         /// Очищает все поля ввода
         /// </summary>
-        private void ClearFields()
+        public void ClearFields()
         {
             txtName.Clear();
             txtCharacter.Clear();
@@ -279,9 +262,9 @@ namespace AnimeFigures.WinForms
             txtScaleFilter.Clear();
             dtpRelease.Value = DateTime.Now;
         }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
-
         }
     }
 }

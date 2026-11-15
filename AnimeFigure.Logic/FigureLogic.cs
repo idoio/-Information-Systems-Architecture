@@ -23,6 +23,20 @@ namespace AnimeFigures.Logic
             _analyticsService = analyticsService;
         }
 
+        #region События Model (пробрасываются из CrudService)
+
+        /// <summary>
+        /// Событие об изменении данных. Фасад пробрасывает подписку напрямую
+        /// в CrudService, поэтому Presenter получает уведомления от первоисточника.
+        /// </summary>
+        public event Action FiguresChanged
+        {
+            add { _crudService.FiguresChanged += value; }
+            remove { _crudService.FiguresChanged -= value; }
+        }
+
+        #endregion
+
         #region CRUD-операции (делегируются в CrudService)
 
         /// <summary>

@@ -71,5 +71,11 @@ namespace AnimeFigures.Logic
         /// <param name="scale">Масштаб для поиска</param>
         /// <returns>Список фигурок указанного масштаба</returns>
         List<Figure> FilterByScale(string scale);
+
+        /// <summary>
+        /// Событие: данные о фигурках изменились.
+        /// Presenter подписывается на него, чтобы перерисовывать View.
+        /// </summary>
+        event Action FiguresChanged;
     }
 }
