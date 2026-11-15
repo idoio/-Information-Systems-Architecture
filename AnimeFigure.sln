@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFigures.DataAccessLaye
 		{2CFC4663-C1E4-4F73-AAA9-90992FDB32B9} = {2CFC4663-C1E4-4F73-AAA9-90992FDB32B9}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeFigures.Shared", "AnimeFigures.Shared\AnimeFigures.Shared.csproj", "{48369DE8-B86E-4BE6-BCB9-DCEFFB8C19CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{60FAAE82-406F-45BF-88F2-49473C1CD61E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60FAAE82-406F-45BF-88F2-49473C1CD61E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60FAAE82-406F-45BF-88F2-49473C1CD61E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48369DE8-B86E-4BE6-BCB9-DCEFFB8C19CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48369DE8-B86E-4BE6-BCB9-DCEFFB8C19CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48369DE8-B86E-4BE6-BCB9-DCEFFB8C19CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48369DE8-B86E-4BE6-BCB9-DCEFFB8C19CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
