@@ -1,5 +1,4 @@
-﻿using AnimeFigures.Presenter;
-using AnimeFigures.Shared;
+﻿using AnimeFigures.Shared;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -14,9 +13,8 @@ namespace AnimeFigures.WinForms
     public partial class MainForm : Form, IMainView
     {
         private BindingSource _bindingSource;
-        private MainPresenter _presenter;
 
-        //События View - Presenter
+        // События View - Presenter
 
         /// <summary>Пользователь запросил добавление фигурки</summary>
         public event Action<FigureDto> CreateRequested;
@@ -40,7 +38,8 @@ namespace AnimeFigures.WinForms
         public event Action<int?> SelectionChanged;
 
         /// <summary>
-        /// Конструктор главной формы. Инициализирует IoC-контейнер и зависимости.
+        /// Конструктор главной формы. Инициализирует контролы.
+        /// Presenter создается снаружи (в Program.cs) и внедряется через CompositionRoot.
         /// </summary>
         public MainForm()
         {
@@ -49,10 +48,6 @@ namespace AnimeFigures.WinForms
 
             // Подписываемся на выбор строки в таблице
             dataGridView1.SelectionChanged += DataGridView1_SelectionChanged;
-
-            // Точка сборки создаёт Presenter и внедряет в него эту форму как IMainView.
-            // Presenter сам загрузит тестовые данные и вызовет ShowFigures().
-            _presenter = CompositionRoot.CreateMainPresenter(this);
         }
 
         /// <summary>
@@ -293,6 +288,11 @@ namespace AnimeFigures.WinForms
             dtpRelease.Value = DateTime.Now;
         }
 
+        /// <summary>
+        /// Обработчик события загрузки формы (в текущей реализации не используется)
+        /// </summary>
+        /// <param name="sender">Источник события (форма)</param>
+        /// <param name="e">Аргументы события</param>
         private void MainForm_Load(object sender, EventArgs e)
         {
         }

@@ -8,9 +8,6 @@
         {
             if (disposing && (components != null))
             {
-                // Освобождаем Presenter (отписка от событий) и IoC-контейнер
-                _presenter?.Dispose();
-                AnimeFigures.Presenter.CompositionRoot.Shutdown();
                 components.Dispose();
             }
             base.Dispose(disposing);

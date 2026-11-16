@@ -1,19 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Ninject" Version="3.3.6" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Ninject" Version="3.3.6" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\AnimeFigure.Logic\AnimeFigure.Logic.csproj" />
-    <ProjectReference Include="..\AnimeFigure.Model\AnimeFigure.Model.csproj" />
-    <ProjectReference Include="..\AnimeFigures.Shared\AnimeFigures.Shared.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\AnimeFigure.Logic\AnimeFigure.Logic.csproj" />
+		<ProjectReference Include="..\AnimeFigure.Model\AnimeFigure.Model.csproj" />
+		<ProjectReference Include="..\AnimeFigures.Shared\AnimeFigures.Shared.csproj" />
+
+		<ProjectReference Include="..\AnimeFigure.WinForm\AnimeFigure.WinForm.csproj" />
+	</ItemGroup>
 
 </Project>
